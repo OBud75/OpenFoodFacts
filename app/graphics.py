@@ -9,5 +9,8 @@ import tkinter
 # Local application imports
 
 class Graphic:
-    def __init__(self, graphic_user_interface):
-        pass
+    def __init__(self, substitution_finder):
+        self.substitution_finder = substitution_finder
+
+    def main_loop(self):
+        self.substitution_finder.main_loop()

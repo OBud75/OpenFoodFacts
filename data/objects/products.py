@@ -12,11 +12,12 @@ from data.objects.stores import Store
 class Product:
     """Class representing a single product
     """
-    def __init__(self, product_id, name, description, nutri_score, link, category, score):
-        self.product_id = product_id
-        self.name = name
+    def __init__(self, code, product_name, stores, nutrition_grades, description, link):
+        self.code = code
+        self.product_name = product_name
+        self.stores = stores
+        self.nutrition_grades = nutrition_grades
         self.description = description
-        self.nutri_score = nutri_score
         self.link = link
 
         # Check if category and score already exist, if yes pick them else create

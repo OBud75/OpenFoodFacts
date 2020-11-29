@@ -12,11 +12,11 @@ import mysql.connector
 class StoresTable():
     """Class representing the table stores
     """
-    def __init__(self, data_base):
-        self.data_base = data_base
+    def __init__(self, cursor):
+        self.cursor = cursor
 
     def create_table(self):
-        self.data_base.cursor.execute("""
+        self.cursor.execute("""
         CREATE TABLE stores (
             store_name TEXT NOT NULL,
             product_id SMALLINT UNSIGNED NOT NULL,

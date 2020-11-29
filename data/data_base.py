@@ -8,35 +8,37 @@ from pprint import pprint
 
 # Third party import
 import requests
-from MySQLdb import _mysql
 import mysql.connector
 
 # Local application imports
+from data import constants
 from data.tables.products_table import ProductsTable
-from data.tables.categories_table import CategoryTable
-from data.tables.stores_table import StoreTable
+#from data.tables.categories_table import CategoryTable
+#from data.tables.stores_table import StoreTable
 
 class DataBaseManager():
     """In this class we implement the SQL DataBase structure
     """
     def __init__(self):
-        self.mydb = mysql.connector.connect(**constants.MYSQL_CONFIG)
-        self.cursor = self.mydb.cursor(buffered=True)
-
+        # Creation and connection to the DataBase
+        mydb = mysql.connector.connect(**constants.MYSQL_CONFIG)
+        self.cursor = mydb.cursor(buffered=True)
         self.create_data_base()
 
-        self.products_table = ProductsTable(self)
-        self.category_table = CategoryTable(self)
-        self.stores_table = StoreTable(self)
+        # Instantiation of the tables
+        self.products_table = ProductsTable(self.cursor)
+        #self.category_table = CategoryTable(self.cursor)
+        #self.stores_table = StoreTable(self.cursor)
 
-        self.create_tables()
-        self.fill_data_base()
+        # Create and fill the tables
+        #self.create_tables()
+        #self.fill_data_base()
 
     def create_data_base(self):
         self.cursor.execute("""
-        CREATE DATABASE openfoodfact CHARACTER SET 'utf8';
+        CREATE DATABASE IF NOT EXISTS openfoodfact CHARACTER SET 'utf8';
         USE openfoodfact;
-        """)
+        """, multi=True)
 
     def create_tables(self):
         self.products_table.create_table()
@@ -45,5 +47,5 @@ class DataBaseManager():
 
     def fill_data_base(self):
         self.products_table.fill_table()
-        self.category_table.fill_table()
-        self.stores_table.fill_table()
+        #self.category_table.fill_table()
+        #self.stores_table.fill_table()

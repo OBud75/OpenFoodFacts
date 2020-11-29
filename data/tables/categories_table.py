@@ -13,8 +13,8 @@ import requests
 class CategoriesTable():
     """Class representing the table categories
     """
-    def __init__(self, data_base):
-        self.data_base = data_base
+    def __init__(self, cursor):
+        self.cursor = cursor
         self.categories = self.get_categories()
 
     def get_categories(self):
@@ -23,7 +23,7 @@ class CategoriesTable():
         return [category['name'] for category in categories_tags]
 
     def create_table(self):
-        self.data_base.cursor.execute("""
+        self.cursor.execute("""
         CREATE TABLE categories (
             category TEXT NOT NULL,
             product_id SMALLINT UNSIGNED NOT NULL,
@@ -32,7 +32,7 @@ class CategoriesTable():
 
     def fill_table(self):
         for category in self.categories:
-            self.data_base.cursor.execute(f"""
+            self.cursor.execute(f"""
             INSERT INTO categories (category_id, category)
             VALUES ({category_id}, {category});
             """)

@@ -6,7 +6,7 @@
 # Third party import
 
 # Local application imports
-from 
+
 
 class Category:
     """Class representing a single category

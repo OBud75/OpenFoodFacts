@@ -8,47 +8,54 @@ A small description, and a link to the product
 # Third party import
 import requests
 
-
 # Local application imports
+from data.tables import constants
 from data.objects.products import Product
 from data.tables.categories_table import CategoriesTable
 
 class ProductsTable:
     """Class representing the table products
     """
-    def __init__(self, data_base):
-        self.data_base = data_base
-        self.products_list = []
-        self.categories_table = CategoriesTable()
+    def __init__(self, cursor):
+        self.cursor = cursor
+
+        # Intantiation of the relatives tables
+        self.categories_table = CategoriesTable(self.cursor)
     
     def create_table(self):
-        self.data_base.cursor.execute("""
-        CREATE TABLE products (
-            category TEXT NOT NULL,
-            product_id SMALLINT UNSIGNED NOT NULL,
-            FOREIGN KEY (category) REFERENCES products (id);
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            code INT UNSIGNED NOT NULL UNIQUE INDEX,
+            product_name VARCHAR(45) NOT NULL,
+            description TEXT(100) NOT NULL,
+            nutrition_grades VARCHAR(1) NOT NULL,
+            stores VARCHAR(45) NOT NULL,
+            link VARCHAR(45) NOT NULL,
+            categories_names VARCHAR(255) NOT NULL,
+            PRIMARY KEY (code),
+            FOREIGN KEY (categories_name) REFERENCES products (id),
+            FOREIGN KEY (stores) REFERENCES products (id);
         """)
 
     def get_products_of_categories(self):
         return {category: requests.get(f"https://world.openfoodfacts.org/category/{category}.json").json()['products']
                 for category in self.categories_table.get_categories()}
 
-    def create_products(self):
+    def get_products_list(self):
+        products_list = []
         for category, products in self.get_products_of_categories().items():
             for product in products:
-                code = product.get('code')
-                name = product.get('product_name')
-                description = []
-                stores = product.get('stores')
-                nutri_score  = product.get('nutrition_grades')
-                link = f"https://world.openfoodfacts.org/product/{code}/{name}"
+                for column in constants.PRODUCT_INFOS:
+                    column = product.get(column)
+                link = f"https://world.openfoodfacts.org/product/{code}/{product_name}"
+                # categories = category
 
-                new_product = Product(code, name, description, nutri_score, link)
-                self.products_list.append(new_product)
+                new_product = Product((column for column in constants.PRODUCT_INFOS), link)
+                products_list.append(new_product)
 
-
-if __name__ == "__main__":
-    test = ProductsTable()
-    test.create_products()
-    for product in test.products_list:
-        print(product.name)
+    def fill_table(self):
+        for product in self.get_products_list():
+            self.cursor.execute(f"""
+            INSERT INTO products ({column for column in constants.PRODUCT_INFOS})
+            VALUES ({product.column for column in constants.PRODUCT_INFOS});
+            """)

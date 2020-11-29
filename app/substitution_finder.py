@@ -20,28 +20,50 @@ L'utilisateur a alors la possibilité d'enregistrer le résultat dans la base de
 # Third party import
 
 # Local application imports
+from app import constants
 
 class SubstitutionFinder():
     """Class representing the needs of the user
     """
-    def __init__(self):
-        pass
-
-    def find_better_nutri_scores(self, product):
-        recommended_products = []
-        return recommended_products
+    def __init__(self, cursor):
+        self.cursor = cursor
 
     def get_mode(self):
         return input("1 - Quel aliment souhaitez-vous remplacer ?\n\
-                      2 - Retrouver mes aliments substitués.")
+2 - Retrouver mes aliments substitués.\n")
 
-    def show_substitutions(self):
+    def display_substitutions(self):
+        pass
+
+    def recommend_product(self, product, category):
+        # nutritional_grade = get_nutritional_grades(product)
+        # recommendations = get_recommendations(nutritional_grade, category)
+        # return recommendations
+        pass
+    
+    def get_nutritional_grades(self, product):
+        pass
+        # return nutritional_grade
+    
+    def get_recommendations(self, nutritional_grade, category):
+        pass
+    
+    def get_category(self):
+        pass
+
+    def get_product(self, category):
         pass
 
     def main_loop(self):
-        while not self.get_mode.isdigit():
-            self.get_mode()
-        if self.get_mode() ==
+        mode = None
+        while mode not in constants.MODES:
+            mode = self.get_mode()
+        if mode == "1":
+            category = self.get_category()
+            product = self.get_product(category)
+            self.recommend_product(product, category)
+        elif mode == "2":
+            self.display_substitutions()
 
 
 # input_categories = SELECT category FROM categories WHERE product_id in (SELECT id FROM products WHERE name = name)
