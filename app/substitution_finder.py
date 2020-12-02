@@ -20,13 +20,12 @@ L'utilisateur a alors la possibilité d'enregistrer le résultat dans la base de
 # Third party import
 
 # Local application imports
-from app import constants
 
 class SubstitutionFinder():
     """Class representing the needs of the user
     """
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, database_manager):
+        self.database_manager = database_manager
 
     def get_mode(self):
         return input("1 - Quel aliment souhaitez-vous remplacer ?\n\
@@ -56,7 +55,7 @@ class SubstitutionFinder():
 
     def main_loop(self):
         mode = None
-        while mode not in constants.MODES:
+        while mode not in ["1", "2"]:
             mode = self.get_mode()
         if mode == "1":
             category = self.get_category()

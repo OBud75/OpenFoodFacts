@@ -10,21 +10,22 @@ from data.objects.categories import Category
 from data.objects.stores import Store
 
 class Product:
-    """Class representing a single product
+    """Class representing a product
     """
-    def __init__(self, code, product_name, stores, nutrition_grades, description, link):
+    def __init__(self, code, product_name, description, nutrition_grades, category_name, stores):
         self.code = code
         self.product_name = product_name
-        self.stores = stores
-        self.nutrition_grades = nutrition_grades
         self.description = description
-        self.link = link
+        self.nutrition_grades = nutrition_grades
+        self.category_name = category_name
+        self.stores = stores
+        self.link = f"https://world.openfoodfacts.org/product/{code}/{product_name}"
+        self.is_saved = False
 
         # Check if category and score already exist, if yes pick them else create
-        if Category().category_name:
-            pass 
-        if Store().store_name:
-            pass
+    
+    def __getattr__(self, attr):
+        pass
 
     def get_products_of_category(self):
         pass

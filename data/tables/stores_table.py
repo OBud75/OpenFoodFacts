@@ -12,20 +12,32 @@ import mysql.connector
 class StoresTable():
     """Class representing the table stores
     """
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, database_manager):
+        self.database_manager = database_manager
 
     def create_table(self):
-        self.cursor.execute("""
-        CREATE TABLE stores (
-            store_name TEXT NOT NULL,
-            product_id SMALLINT UNSIGNED NOT NULL,
-            FOREIGN KEY (category) REFERENCES products (id));
+        self.database_manager.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stores (
+            store_id INT UNSIGNED PRIMARY KEY,
+            store_name VARCHAR(45),
+            product BIGINT UNSIGNED
+            )
+        ENGINE=INNODB;
+        """)
+
+    def create_relations(self):
+        self.database_manager.cursor.execute("""
+        ALTER TABLE stores
+            ADD CONSTRAINT fk_stores_has_products_product_code
+            FOREIGN KEY (product)
+            REFERENCES products(code),
+        ENGINE=INNODB;
         """)
 
     def fill_table(self):
-        for store in stores.split(", "):
-            "INSERT INTO stores (store_name, product_id) VALUES (?, ?)", store, id;
+        # for store in x:
+        #   self.database_manager.insert_into_table("stores", column, value)
+        pass
 
     def get_stores_of_product(self, product_name):
         pass

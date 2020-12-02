@@ -9,32 +9,46 @@ A small description, and a link to the product
 import requests
 
 # Local application imports
-from data.tables import constants
 from data.objects.products import Product
 from data.tables.categories_table import CategoriesTable
 
 class ProductsTable:
     """Class representing the table products
     """
-    def __init__(self, cursor):
-        self.cursor = cursor
+    def __init__(self, database_manager):
+        self.database_manager = database_manager
 
         # Intantiation of the relatives tables
-        self.categories_table = CategoriesTable(self.cursor)
+        self.categories_table = CategoriesTable(self.database_manager)
     
     def create_table(self):
-        self.cursor.execute("""
+        self.database_manager.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
-            code INT UNSIGNED NOT NULL UNIQUE INDEX,
+            code BIGINT UNSIGNED PRIMARY KEY,
             product_name VARCHAR(45) NOT NULL,
-            description TEXT(100) NOT NULL,
+            description TEXT(100),
             nutrition_grades VARCHAR(1) NOT NULL,
+            link VARCHAR(150) NOT NULL,
+            is_saved BOOLEAN NOT NULL,
+            category_name VARCHAR(500) NOT NULL,
+            category_id INT UNSIGNED,
             stores VARCHAR(45) NOT NULL,
-            link VARCHAR(45) NOT NULL,
-            categories_names VARCHAR(255) NOT NULL,
-            PRIMARY KEY (code),
-            FOREIGN KEY (categories_name) REFERENCES products (id),
-            FOREIGN KEY (stores) REFERENCES products (id);
+            store_id INT UNSIGNED
+            )
+        ENGINE=INNODB;
+        """)
+
+    def create_relations(self):
+        self.database_manager.cursor.execute("""
+        ALTER TABLE products
+            ADD CONSTRAINT fk_products_has_categories_category_id
+            FOREIGN KEY (category_id)
+            REFERENCES categories(category_id),
+
+            ADD CONSTRAINT fk_products_has_stores_store_name
+            FOREIGN KEY (store_id)
+            REFERENCES stores(store_id),
+        ENGINE=INNODB;
         """)
 
     def get_products_of_categories(self):
@@ -42,20 +56,22 @@ class ProductsTable:
                 for category in self.categories_table.get_categories()}
 
     def get_products_list(self):
-        products_list = []
+        products_infos_list = []
         for category, products in self.get_products_of_categories().items():
             for product in products:
-                for column in constants.PRODUCT_INFOS:
-                    column = product.get(column)
-                link = f"https://world.openfoodfacts.org/product/{code}/{product_name}"
-                # categories = category
+                product_infos = {key: product.get(key)
+                                 for key in ["code", "product_name", "description", "nutrition_grades", "stores"]}
+                product_infos["category_name"] = category
+                products_infos_list.append(product_infos)
+        return products_infos_list
 
-                new_product = Product((column for column in constants.PRODUCT_INFOS), link)
-                products_list.append(new_product)
+    def create_products(self):
+        products_list = []
+        for product_infos in self.get_products_list():
+            products_list.append(Product(**product_infos))
+        return products_list
 
     def fill_table(self):
-        for product in self.get_products_list():
-            self.cursor.execute(f"""
-            INSERT INTO products ({column for column in constants.PRODUCT_INFOS})
-            VALUES ({product.column for column in constants.PRODUCT_INFOS});
-            """)
+        for product in self.create_products():
+            for key, value in product.__dict__.items():
+                self.database_manager.insert_into_table("products", key, value)

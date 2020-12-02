@@ -13,7 +13,7 @@ from app.graphics import Graphic
 
 def initializations():
     database_manager = DataBaseManager()
-    substitution_finder = SubstitutionFinder(database_manager.cursor)
+    substitution_finder = SubstitutionFinder(database_manager)
     graphic = Graphic(substitution_finder)
     return graphic
 

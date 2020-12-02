@@ -1,4 +1,4 @@
-"""Constants relatives to the DataBase
+"""Constants
 """
 
 # Standard library import
@@ -16,3 +16,4 @@ MYSQL_CONFIG = {
             "host": "localhost",
             "auth_plugin": "mysql_native_password",
         }
+DATABASE_NAME = "openfoodfacts"
