@@ -7,7 +7,6 @@ Each store have products you can buy
 # Third party import
 
 # Local application imports
-import mysql.connector
 
 class StoresTable():
     """Class representing the table stores
@@ -18,9 +17,9 @@ class StoresTable():
     def create_table(self):
         self.database_manager.cursor.execute("""
         CREATE TABLE IF NOT EXISTS stores (
-            store_id INT UNSIGNED PRIMARY KEY,
+            store_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             store_name VARCHAR(45),
-            product BIGINT UNSIGNED
+            product INT UNSIGNED
             )
         ENGINE=INNODB;
         """)
@@ -30,14 +29,21 @@ class StoresTable():
         ALTER TABLE stores
             ADD CONSTRAINT fk_stores_has_products_product_code
             FOREIGN KEY (product)
-            REFERENCES products(code),
+            REFERENCES products(id),
         ENGINE=INNODB;
         """)
 
     def fill_table(self):
-        # for store in x:
-        #   self.database_manager.insert_into_table("stores", column, value)
-        pass
+        for store in self.database_manager.singleton_checker._stores:
+            statement = (
+                "INSERT INTO stores"
+                "(store_name)"
+                "VALUES (%s)"
+            )
+            data = (
+                store.store_name,
+            )
+            self.database_manager.cursor.execute(statement, data)
 
     def get_stores_of_product(self, product_name):
         pass

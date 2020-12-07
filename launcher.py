@@ -12,6 +12,11 @@ from app.substitution_finder import SubstitutionFinder
 from app.graphics import Graphic
 
 def initializations():
+    """Initializating instances
+
+    Returns:
+        Object: Grafical user interface
+    """
     database_manager = DataBaseManager()
     substitution_finder = SubstitutionFinder(database_manager)
     graphic = Graphic(substitution_finder)

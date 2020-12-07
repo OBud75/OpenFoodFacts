@@ -6,26 +6,31 @@
 # Third party import
 
 # Local application imports
-from data.objects.categories import Category
-from data.objects.stores import Store
 
 class Product:
     """Class representing a product
     """
-    def __init__(self, code, product_name, description, nutrition_grades, category_name, stores):
-        self.code = code
-        self.product_name = product_name
-        self.description = description
-        self.nutrition_grades = nutrition_grades
-        self.category_name = category_name
-        self.stores = stores
-        self.link = f"https://world.openfoodfacts.org/product/{code}/{product_name}"
-        self.is_saved = False
+    def __init__(self, singleton_checker, **product_infos):
+        """Initializing instances of products
+        Category and store attribute are instances of their respectives class
+        We want them to be singleton
 
-        # Check if category and score already exist, if yes pick them else create
-    
-    def __getattr__(self, attr):
-        pass
+        Args:
+            singleton_checker ([type]): [description]
+        """
+        self.singleton_checker = singleton_checker
+
+        self.code = product_infos.get("code")
+        self.product_name = product_infos.get("product_name")
+        self.description = product_infos.get("description")
+        self.nutrition_grades = product_infos.get("nutrition_grades", "?")
+        self.link = f"https://world.openfoodfacts.org/product/{self.code}/{self.product_name.replace(' ', '-')}"
+
+        # Creating singleton instances for category and store
+        self.category_name = self.singleton_checker.create_category(product_infos.get("category_name")).category_name
+        #self.category_name = categories_model.create_category(category_name).category_name
+        self.store_name = self.singleton_checker.create_store(product_infos.get("store_name")).store_name
+        #self.store_name = stores_model.create_store(store_name).store_name
 
     def get_products_of_category(self):
         pass

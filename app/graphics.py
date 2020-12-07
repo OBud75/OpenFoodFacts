@@ -11,12 +11,11 @@ import tkinter
 class Graphic:
     def __init__(self, substitution_finder):
         self.substitution_finder = substitution_finder
-        self.window = tkinter.Tk()
-        self.window_parameters()
+        #self.window = tkinter.Tk()
+        #self.window_parameters()
     
     def window_parameters(self):
         self.window.title("OpenFactFood")
 
     def main_loop(self):
-        #self.window.mainloop()
         self.substitution_finder.main_loop()

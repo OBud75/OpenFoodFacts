@@ -24,15 +24,15 @@ class ProductsTable:
     def create_table(self):
         self.database_manager.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
-            code BIGINT UNSIGNED PRIMARY KEY,
-            product_name VARCHAR(45) NOT NULL,
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            code BIGINT UNSIGNED,
+            product_name VARCHAR(100) NOT NULL,
             description TEXT(100),
             nutrition_grades VARCHAR(1) NOT NULL,
             link VARCHAR(150) NOT NULL,
-            is_saved BOOLEAN NOT NULL,
             category_name VARCHAR(500) NOT NULL,
             category_id INT UNSIGNED,
-            stores VARCHAR(45) NOT NULL,
+            store_name VARCHAR(45),
             store_id INT UNSIGNED
             )
         ENGINE=INNODB;
@@ -60,7 +60,8 @@ class ProductsTable:
         for category, products in self.get_products_of_categories().items():
             for product in products:
                 product_infos = {key: product.get(key)
-                                 for key in ["code", "product_name", "description", "nutrition_grades", "stores"]}
+                                 for key in ["code", "product_name", "description", "nutrition_grades", "store_name"]
+                                 if product.get(key) != None}
                 product_infos["category_name"] = category
                 products_infos_list.append(product_infos)
         return products_infos_list
@@ -68,10 +69,29 @@ class ProductsTable:
     def create_products(self):
         products_list = []
         for product_infos in self.get_products_list():
-            products_list.append(Product(**product_infos))
+            #if not self.singleton_checker.is_product_duplicate(product_infos["code"]):
+            products_list.append(Product(self.database_manager.singleton_checker, **product_infos))
         return products_list
 
     def fill_table(self):
         for product in self.create_products():
-            for key, value in product.__dict__.items():
-                self.database_manager.insert_into_table("products", key, value)
+        #    for key, value in product.__dict__.items():
+        #        self.database_manager.insert_into_table("products", key, value)
+
+        #self.check_duplicate()
+            statement = (
+                "INSERT INTO products"
+                "(code, product_name, description, nutrition_grades, link, category_name, store_name)"
+                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            )
+            data = (
+                product.code, product.product_name, product.description, product.nutrition_grades, product.link, product.category_name, product.store_name
+            )
+            self.database_manager.cursor.execute(statement, data)
+
+    def check_duplicate(self):
+        for i in range(len(self.create_products())):
+            for j in range(i, len(self.create_products())):
+                if self.create_products()[i].code == self.create_products()[j].code:
+                    print(self.create_products()[i].__dict__)
+                    print(self.create_products()[j].__dict__)
