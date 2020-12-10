@@ -48,6 +48,10 @@ class ProductsTable:
             ADD CONSTRAINT fk_products_has_stores_store_name
             FOREIGN KEY (store_id)
             REFERENCES stores(store_id),
+
+            ADD CONSTRAINT fk_products_has_substitutes
+            FOREIGN KEY (id)
+            REFERENCES products(id),
         ENGINE=INNODB;
         """)
 
@@ -69,16 +73,12 @@ class ProductsTable:
     def create_products(self):
         products_list = []
         for product_infos in self.get_products_list():
-            #if not self.singleton_checker.is_product_duplicate(product_infos["code"]):
-            products_list.append(Product(self.database_manager.singleton_checker, **product_infos))
+            if not self.database_manager.duplicate_checker.is_product_duplicate(product_infos["code"]):
+                products_list.append(Product(self.database_manager, **product_infos))
         return products_list
 
     def fill_table(self):
         for product in self.create_products():
-        #    for key, value in product.__dict__.items():
-        #        self.database_manager.insert_into_table("products", key, value)
-
-        #self.check_duplicate()
             statement = (
                 "INSERT INTO products"
                 "(code, product_name, description, nutrition_grades, link, category_name, store_name)"
@@ -88,10 +88,3 @@ class ProductsTable:
                 product.code, product.product_name, product.description, product.nutrition_grades, product.link, product.category_name, product.store_name
             )
             self.database_manager.cursor.execute(statement, data)
-
-    def check_duplicate(self):
-        for i in range(len(self.create_products())):
-            for j in range(i, len(self.create_products())):
-                if self.create_products()[i].code == self.create_products()[j].code:
-                    print(self.create_products()[i].__dict__)
-                    print(self.create_products()[j].__dict__)

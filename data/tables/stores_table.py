@@ -34,7 +34,7 @@ class StoresTable():
         """)
 
     def fill_table(self):
-        for store in self.database_manager.singleton_checker._stores:
+        for store in self.database_manager.duplicate_checker._stores:
             statement = (
                 "INSERT INTO stores"
                 "(store_name)"

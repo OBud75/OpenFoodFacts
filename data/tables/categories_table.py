@@ -35,11 +35,7 @@ class CategoriesTable():
         """)
 
     def fill_table(self):
-        #for category in categories_model._categories:
-        #    self.database_manager.insert_into_table("categories", "category_name", category.category_name)
-        #    print(category.category_name)
-        #    self.database_manager.insert_into_table("categories", "category_name", category.category_name)
-        for category in self.database_manager.singleton_checker._categories:
+        for category in self.database_manager.duplicate_checker._categories:
             statement = (
                 "INSERT INTO categories"
                 "(category_name)"

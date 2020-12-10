@@ -3,6 +3,7 @@
 """
 
 # Standard library import
+from sys import argv
 
 # Third party import
 
@@ -11,13 +12,20 @@ from data.data_base import DataBaseManager
 from app.substitution_finder import SubstitutionFinder
 from app.graphics import Graphic
 
+def check_argv():
+    if len(argv) == 2 and argv[1] == "database":
+        return "create"
+    if len(argv) == 1:
+        return "normal"
+    quit("Create database: python launcher.py database\nUsage: python launcher.py")
+
 def initializations():
     """Initializating instances
 
     Returns:
         Object: Grafical user interface
     """
-    database_manager = DataBaseManager()
+    database_manager = DataBaseManager(mode=check_argv())
     substitution_finder = SubstitutionFinder(database_manager)
     graphic = Graphic(substitution_finder)
     return graphic
