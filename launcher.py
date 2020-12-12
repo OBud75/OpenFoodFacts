@@ -4,6 +4,7 @@
 
 # Standard library import
 from sys import argv
+from sys import exit
 
 # Third party import
 
@@ -17,7 +18,7 @@ def check_argv():
         return "create"
     if len(argv) == 1:
         return "normal"
-    quit("Create database: python launcher.py database\nUsage: python launcher.py")
+    exit("Create database: python launcher.py database\nUsage: python launcher.py")
 
 def initializations():
     """Initializating instances

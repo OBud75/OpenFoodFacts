@@ -13,7 +13,6 @@ from data import constants
 from data.tables.products_table import ProductsTable
 from data.tables.categories_table import CategoriesTable
 from data.tables.stores_table import StoresTable
-from data.objects.models.duplicate_checker import DuplicateChecker
 
 class DataBaseManager():
     """In this class we implement the SQL DataBase structure
@@ -29,7 +28,6 @@ class DataBaseManager():
 
         # Instantiation of the tables
         if mode == "create":
-            self.duplicate_checker = DuplicateChecker(self)
             self.products_table = ProductsTable(self)
             self.categories_table = CategoriesTable(self)
             self.stores_table = StoresTable(self)
@@ -37,7 +35,7 @@ class DataBaseManager():
             # Create tables, link them together and fill them
             self.create_tables()
             #self.create_relations()
-            self.fill_tables()
+            self.products_table.products_manager.create_products()
             #self.delete_database()
 
     def create_data_base(self, name=constants.DATABASE_NAME):
@@ -53,18 +51,13 @@ class DataBaseManager():
 
     def create_tables(self):
         self.products_table.create_table()
-        self.category_table.create_table()
+        self.categories_table.create_table()
         self.stores_table.create_table()
 
     def create_relations(self):
         self.products_table.create_relations()
         self.categories_table.create_relations()
         self.stores_table.create_relations()
-
-    def fill_tables(self):
-        self.products_table.fill_table()
-        self.categories_table.fill_table()
-        self.stores_table.fill_table()
 
     def delete_database(self, name=constants.DATABASE_NAME):
         self.cursor.execute(f"""

@@ -34,12 +34,10 @@ class SubstitutionFinder():
 
     def display_substitutions(self):
         query = ("""
-            SELECT product_name
-            FROM products
-            WHERE 
+            SELECT substitute
+            FROM fk_product_has_substitutes
         """)
-        data = (, )
-        self.database_manager.cursor.execute(query, data)
+        self.database_manager.cursor.execute(query)
         results = self.database_manager.cursor.fetchall()[0]
         return results
 
@@ -70,13 +68,15 @@ class SubstitutionFinder():
         return results[index]
 
     def save_substitution(self, product_name, substitute):
-        query = ("""
-            ALTER %s
-            FROM products
-            WHERE product_name LIKE %s
-        """)
-        data = (substitute, product_name)
-        self.database_manager.cursor.execute(query, data)
+        statement = (
+            "INSERT INTO fk_product_has_substitutes"
+            "(product_name, substitute_name)"
+            "VALUES (%s, %s)"
+        )
+        data = (
+            product_name, substitute
+        )
+        self.database_manager.cursor.execute(statement, data)
 
     def get_nutrition_grades(self, product_name):
         query = ("""
@@ -115,7 +115,7 @@ class SubstitutionFinder():
         print("\nProduct list: ")
         for number, product in enumerate(products):
             print(f"{number + 1}: {product}")
-        index = int(input("\nChoose a substitute: ")) - 1
+        index = int(input("\nSelect a product: ")) - 1
         return products[index][0]
 
     def main_loop(self):

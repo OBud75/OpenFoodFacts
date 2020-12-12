@@ -33,17 +33,18 @@ class StoresTable():
         ENGINE=INNODB;
         """)
 
-    def fill_table(self):
-        for store in self.database_manager.duplicate_checker._stores:
+    def add_to_table(self, store_name):
+        query, data = store_name.is_in_stores_table()
+        self.database_manager.cursor.execute(query, data)
+        is_not_in_stores_table = self.database_manager.cursor.fetchall()[0] == None
+
+        if is_not_in_stores_table:
             statement = (
                 "INSERT INTO stores"
                 "(store_name)"
                 "VALUES (%s)"
             )
             data = (
-                store.store_name,
+                store_name,
             )
             self.database_manager.cursor.execute(statement, data)
-
-    def get_stores_of_product(self, product_name):
-        pass

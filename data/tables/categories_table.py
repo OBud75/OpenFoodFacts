@@ -34,19 +34,23 @@ class CategoriesTable():
         ENGINE=INNODB;
         """)
 
-    def fill_table(self):
-        for category in self.database_manager.duplicate_checker._categories:
+    def get_categories(self):
+        categories_request = requests.get("https://world.openfoodfacts.org/categories.json").json()
+        categories_tags = categories_request['tags']
+        return [category['name'] for category in categories_tags][0:2]
+
+    def add_to_table(self, category_name):
+        query, data = category_name.is_in_categories_table()
+        self.database_manager.cursor.execute(query, data)
+        is_not_in_categories_table = self.database_manager.cursor.fetchall() == None
+
+        if is_not_in_categories_table:
             statement = (
                 "INSERT INTO categories"
                 "(category_name)"
                 "VALUES (%s)"
             )
             data = (
-                category.category_name,
+                category_name,
             )
             self.database_manager.cursor.execute(statement, data)
-
-    def get_categories(self):
-        categories_request = requests.get("https://world.openfoodfacts.org/categories.json").json()
-        categories_tags = categories_request['tags']
-        return [category['name'] for category in categories_tags][0:2]

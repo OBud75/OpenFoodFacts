@@ -9,14 +9,15 @@ A small description, and a link to the product
 import requests
 
 # Local application imports
-from data.objects.products import Product
 from data.tables.categories_table import CategoriesTable
+from data.objects.products_manager import ProductsManager
 
 class ProductsTable:
     """Class representing the table products
     """
     def __init__(self, database_manager):
         self.database_manager = database_manager
+        self.products_manager = ProductsManager(self.database_manager)
 
         # Intantiation of the relatives tables
         self.categories_table = CategoriesTable(self.database_manager)
@@ -27,7 +28,7 @@ class ProductsTable:
             id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             code BIGINT UNSIGNED,
             product_name VARCHAR(100) NOT NULL,
-            description TEXT(100),
+            ingredients_text TEXT(100),
             nutrition_grades VARCHAR(1) NOT NULL,
             link VARCHAR(150) NOT NULL,
             category_name VARCHAR(500) NOT NULL,
@@ -69,22 +70,3 @@ class ProductsTable:
                 product_infos["category_name"] = category
                 products_infos_list.append(product_infos)
         return products_infos_list
-
-    def create_products(self):
-        products_list = []
-        for product_infos in self.get_products_list():
-            if not self.database_manager.duplicate_checker.is_product_duplicate(product_infos["code"]):
-                products_list.append(Product(self.database_manager, **product_infos))
-        return products_list
-
-    def fill_table(self):
-        for product in self.create_products():
-            statement = (
-                "INSERT INTO products"
-                "(code, product_name, description, nutrition_grades, link, category_name, store_name)"
-                "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            )
-            data = (
-                product.code, product.product_name, product.description, product.nutrition_grades, product.link, product.category_name, product.store_name
-            )
-            self.database_manager.cursor.execute(statement, data)
