@@ -10,6 +10,7 @@ class CategoriesManager:
     """
     def __init__(self, database_manager):
         self.database_manager = database_manager
+        self._categories = list()
 
     def get_category(self, category_name):
         query = ("""
@@ -20,14 +21,20 @@ class CategoriesManager:
         data = (category_name,)
         self.database_manager.cursor.execute(query, data)
         category = self.database_manager.cursor.fetchone()
-        
+
         if category != None:
-            return category
-        return self.create_store(category_name)
-    
-    def create_store(self, category_name):
+            return self.find_existing_category(category_name)
+        return self.create_category(category_name)
+
+    def find_existing_category(self, category_name):
+        for category in self._categories:
+            if category.category_name == category_name:
+                return category
+
+    def create_category(self, category_name):
         category = CategoryModel(category_name)
         self.add_to_table(category)
+        self._categories.append((category))
         return category
 
     def add_to_table(self, category):
