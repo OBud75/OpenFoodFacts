@@ -9,16 +9,18 @@
 from data.objects.models.product_model import ProductModel
 from data.objects.categories_manager import CategoriesManager
 from data.objects.stores_manager import StoresManager
+from data.api_manager import ApiManager
 
 class ProductsManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
+        self.api_manager = ApiManager()
         self._products = list()
         self.categories_manager = CategoriesManager(self.database_manager)
         self.stores_manager = StoresManager(self.database_manager)
 
     def create_products(self):
-        for product_infos in self.database_manager.products_table.get_products_list():
+        for product_infos in self.api_manager.get_products_list():
             category_name = product_infos.get('category_name')
             product_infos['category_name'] = self.categories_manager.get_category(category_name)
             
@@ -56,6 +58,6 @@ class ProductsManager:
             "VALUES (%s, %s, %s, %s, %s, %s, %s)"
         )
         data = (
-            product.code, product.product_name, product.ingredients_text, product.nutrition_grades, product.link, product.category_name, product.store_name
+            product.code, product.product_name, product.ingredients_text, product.nutrition_grades, product.link, product.category.category_name, product.store.store_name
         )
         self.database_manager.cursor.execute(statement, data)

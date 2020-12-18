@@ -17,22 +17,19 @@ class StoresManager:
 
     def get_store(self, store_name):
         query = ("""
-            SELECT store_name
+            SELECT store_id
             FROM stores
             WHERE store_name LIKE %s
         """)
         data = (store_name,)
         self.database_manager.cursor.execute(query, data)
         store = self.database_manager.cursor.fetchone()
-        
+
         if store != None:
             return self.find_existing_store(store_name)
         return self.create_store(store_name)
 
-    def find_existing_store(self, store_name):
-        for store in self._stores:
-            if store.store_name == store_name:
-                return store
+    #def get_store_id()
 
     def create_store(self, store_name):
         store = StoreModel(store_name)
