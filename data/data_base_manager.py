@@ -10,7 +10,7 @@ import mysql.connector
 
 # Local application imports
 from data import constants
-from data.objects.products_manager import ProductsManager
+from data.views.managers.products_manager import ProductsManager
 
 class DataBaseManager():
     """In this class we implement the SQL DataBase structure
@@ -26,10 +26,9 @@ class DataBaseManager():
 
         # Instantiation of the tables
         if mode == "create":
-            self.products_manager = ProductsManager(self)
-
             self.create_tables()
             #self.create_relations()
+            self.products_manager = ProductsManager(self)
             self.products_manager.create_products()
             #self.delete_database()
 

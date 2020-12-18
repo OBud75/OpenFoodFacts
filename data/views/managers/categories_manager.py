@@ -3,7 +3,7 @@
 # Third party import
 
 # Local application imports
-from data.objects.models.category_model import CategoryModel
+from data.views.models.category_model import CategoryModel
 
 class CategoriesManager:
     """Link between categories and database

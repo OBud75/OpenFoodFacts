@@ -6,9 +6,9 @@
 # Third party import
 
 # Local application imports
-from data.objects.models.product_model import ProductModel
-from data.objects.categories_manager import CategoriesManager
-from data.objects.stores_manager import StoresManager
+from data.views.models.product.product_model import ProductModel
+from data.views.managers.categories_manager import CategoriesManager
+from data.views.managers.stores_manager import StoresManager
 from data.api_manager import ApiManager
 
 class ProductsManager:

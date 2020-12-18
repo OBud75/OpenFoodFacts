@@ -6,7 +6,7 @@
 # Third party import
 
 # Local application imports
-from data.objects.models.store_model import StoreModel
+from data.views.models.store_model import StoreModel
 
 class StoresManager:
     """Class representing a single store
@@ -21,7 +21,7 @@ class StoresManager:
             FROM stores
             WHERE store_name LIKE %s
         """)
-        data = (store_name,)
+        data = (self.get_store_id(store_name),)
         self.database_manager.cursor.execute(query, data)
         store = self.database_manager.cursor.fetchone()
 
@@ -29,7 +29,15 @@ class StoresManager:
             return self.find_existing_store(store_name)
         return self.create_store(store_name)
 
-    #def get_store_id()
+    def get_store_id(self, store_name):
+        query = ("""
+            SELECT store_id
+            FROM stores
+            WHERE store_name LIKE %s
+        """)
+        data = (store_name,)
+        self.database_manager.cursor.execute(query, data)
+        return self.database_manager.cursor.fetchone()
 
     def create_store(self, store_name):
         store = StoreModel(store_name)

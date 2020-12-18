@@ -15,5 +15,7 @@ class ProductModel():
         # self.product
         # self.category 
 
+
+
         self.category = product_infos.get("category_name")
         self.store = product_infos.get("store_name")
