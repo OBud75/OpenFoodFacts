@@ -29,7 +29,7 @@ class StoresManager:
             return self.find_existing_store(store_name)
         return self.create_store(store_name)
 
-    def get_store_id(self, store_name):
+    def get_store_id_by_name(self, store_name):
         query = ("""
             SELECT store_id
             FROM stores

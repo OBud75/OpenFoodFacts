@@ -18,10 +18,7 @@ class ApiManager:
         for category, products in self.get_products_of_categories().items():
             for product in products:
                 product_infos = {key: product.get(key)
-                                 for key in ["code", "product_name", "description", "nutrition_grades", "store_name"]
+                                 for key in ["code", "product_name", "description", "nutrition_grades", "categories_hierarchy", "store_name"]
                                  if product.get(key) != None}
-                product_infos["category_name"] = category
                 products_infos_list.append(product_infos)
         return products_infos_list
-
-#"https://world.openfoodfacts.org/category/{category}.json").json()['products']["categories"]

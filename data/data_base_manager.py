@@ -27,9 +27,9 @@ class DataBaseManager():
         # Instantiation of the tables
         if mode == "create":
             self.create_tables()
-            #self.create_relations()
-            self.products_manager = ProductsManager(self)
-            self.products_manager.create_products()
+            self.create_relations()
+            #self.products_manager = ProductsManager(self)
+            #self.products_manager.create_products()
             #self.delete_database()
 
     def create_data_base(self, name=constants.DATABASE_NAME):
@@ -52,16 +52,14 @@ class DataBaseManager():
         # Create products table
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
-            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             code BIGINT UNSIGNED,
             product_name VARCHAR(100) NOT NULL,
             ingredients_text TEXT(100),
             nutrition_grades VARCHAR(1) NOT NULL,
             link VARCHAR(150) NOT NULL,
-            category_name VARCHAR(500) NOT NULL,
-            category_id INT UNSIGNED,
-            store_name VARCHAR(45),
-            store_id INT UNSIGNED
+            categories_id INT UNSIGNED,
+            stores_id INT UNSIGNED
             )
         ENGINE=INNODB;
         """)
@@ -71,7 +69,7 @@ class DataBaseManager():
         CREATE TABLE IF NOT EXISTS categories (
             category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             category_name VARCHAR(100) NOT NULL,
-            products INT UNSIGNED
+            products_id INT UNSIGNED
             )
         ENGINE=INNODB;
         """)
@@ -81,7 +79,7 @@ class DataBaseManager():
         CREATE TABLE IF NOT EXISTS stores (
             store_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             store_name VARCHAR(45),
-            products INT UNSIGNED
+            products_id INT UNSIGNED
             )
         ENGINE=INNODB;
         """)
@@ -90,34 +88,34 @@ class DataBaseManager():
         # For products tables
         self.cursor.execute("""
         ALTER TABLE products
-            ADD CONSTRAINT fk_products_has_categories_category_id
-            FOREIGN KEY (category_id)
+            ADD CONSTRAINT fk_product_has_categories_category_id
+            FOREIGN KEY (categories_id)
             REFERENCES categories(category_id),
 
-            ADD CONSTRAINT fk_products_has_stores_store_name
-            FOREIGN KEY (store_id)
+            ADD CONSTRAINT fk_product_has_stores_store_id
+            FOREIGN KEY (stores_id)
             REFERENCES stores(store_id),
 
-            ADD CONSTRAINT fk_products_has_substitutes
-            FOREIGN KEY (id)
-            REFERENCES products(id),
+            ADD CONSTRAINT fk_product_has_substitutes_product_id
+            FOREIGN KEY (product_id)
+            REFERENCES products(product_id),
         ENGINE=INNODB;
         """)
 
         # For categories table
         self.cursor.execute("""
         ALTER TABLE categories
-            ADD CONSTRAINT fk_categories_has_products_product_id
-            FOREIGN KEY (products)
-            REFERENCES products(id),
+            ADD CONSTRAINT fk_category_has_products_product_id
+            FOREIGN KEY (products_id)
+            REFERENCES products(product_id),
         ENGINE=INNODB;
         """)
 
         # For stores table
         self.cursor.execute("""
         ALTER TABLE stores
-            ADD CONSTRAINT fk_stores_has_products_product_code
-            FOREIGN KEY (products)
-            REFERENCES products(id),
+            ADD CONSTRAINT fk_store_has_products_product_id
+            FOREIGN KEY (products_id)
+            REFERENCES products(product_id),
         ENGINE=INNODB;
         """)

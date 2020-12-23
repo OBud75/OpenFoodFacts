@@ -15,49 +15,45 @@ class ProductsManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
         self.api_manager = ApiManager()
-        self._products = list()
         self.categories_manager = CategoriesManager(self.database_manager)
         self.stores_manager = StoresManager(self.database_manager)
 
     def create_products(self):
         for product_infos in self.api_manager.get_products_list():
-            category_name = product_infos.get('category_name')
-            product_infos['category_name'] = self.categories_manager.get_category(category_name)
-            
-            store_name = product_infos.get('store_name')
-            product_infos['store_name'] = self.stores_manager.get_store(store_name)
 
-            if not self.is_product_in_table(product_infos['product_name']):
-                product = ProductModel(**product_infos)
-            else:
-                product = self.find_existing_product(product_infos['product_name'])
+            # Create categories
+            categories_hierarchy = product_infos.get("categories_hierarchy")
+            product_infos['categories_hierarchy'] = self.categories_manager.manage_categories(*categories_hierarchy)
 
+            # Create stores
+            #store_name = product_infos.get('store_name')
+            #product_infos['store_name'] = self.stores_manager.get_store(stores_name)
+
+            # Create product
+            product = ProductModel(**product_infos)
             self.add_to_table(product)
-            self._products.append(product)
-    
-    def is_product_in_table(self, product_name):
+
+    def get_product_id_by_name(self, product_name):
         query = ("""
-            SELECT product_name
+            SELECT product_id
             FROM products
-            WHERE product_name LIKE %s
+            WHERE product_name = %s
         """)
         data = (product_name,)
         self.database_manager.cursor.execute(query, data)
-        product = self.database_manager.cursor.fetchone()
-        return product != None
-
-    def find_existing_product(self, product_name):
-        for product in self._products:
-            if product.product_name == product_name:
-                return product
+        return self.database_manager.cursor.fetchone()
 
     def add_to_table(self, product):
         statement = (
             "INSERT INTO products"
-            "(code, product_name, ingredients_text, nutrition_grades, link, category_name, store_name)"
-            "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            "(product_name, ingredients_text, nutrition_grades, link, categories_id, stores_id)"
+            "VALUES (%s, %s, %s, %s, %s, %s)"
         )
         data = (
-            product.code, product.product_name, product.ingredients_text, product.nutrition_grades, product.link, product.category.category_name, product.store.store_name
+            product.product_name, product.ingredients_text, product.nutrition_grades, product.link,
+            product.categories_hierarchy, product.stores
         )
         self.database_manager.cursor.execute(statement, data)
+
+    def update_table(self, product_id, category_id):
+        pass
