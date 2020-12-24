@@ -13,37 +13,21 @@ class StoresManager:
     """
     def __init__(self, database_manager):
         self.database_manager = database_manager
-        self._stores = list()
 
-    def get_store(self, store_name):
+    def manage_stores(self, stores):
+        for store in stores:
+            if self.get_store_id_by_name(store) == None:
+                self.add_to_table(store)
+
+    def get_store_id_by_name(self, store):
         query = ("""
             SELECT store_id
             FROM stores
             WHERE store_name LIKE %s
         """)
-        data = (self.get_store_id(store_name),)
-        self.database_manager.cursor.execute(query, data)
-        store = self.database_manager.cursor.fetchone()
-
-        if store != None:
-            return self.find_existing_store(store_name)
-        return self.create_store(store_name)
-
-    def get_store_id_by_name(self, store_name):
-        query = ("""
-            SELECT store_id
-            FROM stores
-            WHERE store_name LIKE %s
-        """)
-        data = (store_name,)
+        data = (store.store_name,)
         self.database_manager.cursor.execute(query, data)
         return self.database_manager.cursor.fetchone()
-
-    def create_store(self, store_name):
-        store = StoreModel(store_name)
-        self.add_to_table(store)
-        self._stores.append(store)
-        return store
 
     def add_to_table(self, store):
         statement = (

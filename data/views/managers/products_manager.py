@@ -6,9 +6,10 @@
 # Third party import
 
 # Local application imports
-from data.views.models.product.product_model import ProductModel
+from data.views.models.product_model import ProductModel
 from data.views.managers.categories_manager import CategoriesManager
 from data.views.managers.stores_manager import StoresManager
+from data.views.managers.product_has_categories_manager import ProductHasCategoriesManager
 from data.api_manager import ApiManager
 
 class ProductsManager:
@@ -17,21 +18,23 @@ class ProductsManager:
         self.api_manager = ApiManager()
         self.categories_manager = CategoriesManager(self.database_manager)
         self.stores_manager = StoresManager(self.database_manager)
+        self.product_has_categories_manager = ProductHasCategoriesManager(self.database_manager)
 
     def create_products(self):
         for product_infos in self.api_manager.get_products_list():
-
-            # Create categories
-            categories_hierarchy = product_infos.get("categories_hierarchy")
-            product_infos['categories_hierarchy'] = self.categories_manager.manage_categories(*categories_hierarchy)
-
-            # Create stores
-            #store_name = product_infos.get('store_name')
-            #product_infos['store_name'] = self.stores_manager.get_store(stores_name)
-
-            # Create product
+            # Products table
             product = ProductModel(**product_infos)
-            self.add_to_table(product)
+            if self.get_product_id_by_name(product.product_name) == None:
+                self.add_to_table(product)
+
+            # Categories table
+            self.categories_manager.manage_categories(*product.product_has_categories.categories)
+            
+            # Link table product has categories
+            self.product_has_categories_manager.manage(product.product_has_categories)
+
+            # Stores
+            store_name = product_infos.get('store_name')
 
     def get_product_id_by_name(self, product_name):
         query = ("""
@@ -46,12 +49,11 @@ class ProductsManager:
     def add_to_table(self, product):
         statement = (
             "INSERT INTO products"
-            "(product_name, ingredients_text, nutrition_grades, link, categories_id, stores_id)"
-            "VALUES (%s, %s, %s, %s, %s, %s)"
+            "(product_name, ingredients_text, nutrition_grades, link)"
+            "VALUES (%s, %s, %s, %s)"
         )
         data = (
-            product.product_name, product.ingredients_text, product.nutrition_grades, product.link,
-            product.categories_hierarchy, product.stores
+            product.product_name, product.ingredients_text, product.nutrition_grades, product.link
         )
         self.database_manager.cursor.execute(statement, data)
 
