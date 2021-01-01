@@ -4,7 +4,7 @@
 from data.views.models.product_has_categories_model import ProductCategories
 from data.views.models.product_has_stores_model import ProductStores
 
-class ProductModel():
+class ProductModel:
     def __init__(self, **product_infos):
         self.code = product_infos.get("code")
         self.product_name = product_infos.get("product_name")

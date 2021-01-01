@@ -1,3 +1,7 @@
+"""
+"""
+
+# Local application imports
 from data.views.models.store_model import StoreModel
 
 class ProductStores:

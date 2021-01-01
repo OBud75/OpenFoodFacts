@@ -1,3 +1,7 @@
+"""
+"""
+
+# Local application imports
 from data.views.models.category_model import CategoryModel
 
 class ProductCategories:

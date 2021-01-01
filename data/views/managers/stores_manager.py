@@ -14,8 +14,8 @@ class StoresManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
 
-    def manage_stores(self, stores):
-        for store in stores:
+    def manage_stores(self, *product_has_stores):
+        for store in product_has_stores:
             if self.get_store_id_by_name(store) == None:
                 self.add_to_table(store)
 
@@ -39,11 +39,3 @@ class StoresManager:
             store.store_name,
         )
         self.database_manager.cursor.execute(statement, data)
-
-"""
-        SI self.pk:
-            UPDATE categories SET nom = self.name WHERE pk = self.pk
-        SINON
-            INSERT INTO categories ('nom') VALUES (self.name)
-            self.pk = retour_sql['pk']
-"""

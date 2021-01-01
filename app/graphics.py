@@ -18,4 +18,4 @@ class Graphic:
         self.window.title("OpenFactFood")
 
     def main_loop(self):
-        self.substitution_finder.main_loop()
+        self.substitution_finder.select_mode()

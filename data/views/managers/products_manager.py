@@ -10,6 +10,7 @@ from data.views.models.product_model import ProductModel
 from data.views.managers.categories_manager import CategoriesManager
 from data.views.managers.stores_manager import StoresManager
 from data.views.managers.product_has_categories_manager import ProductHasCategoriesManager
+from data.views.managers.product_has_stores_manager import ProductHasStoresManager
 from data.api_manager import ApiManager
 
 class ProductsManager:
@@ -19,6 +20,7 @@ class ProductsManager:
         self.categories_manager = CategoriesManager(self.database_manager)
         self.stores_manager = StoresManager(self.database_manager)
         self.product_has_categories_manager = ProductHasCategoriesManager(self.database_manager)
+        self.product_has_stores_manager = ProductHasStoresManager(self.database_manager)
 
     def create_products(self):
         for product_infos in self.api_manager.get_products_list():
@@ -27,14 +29,17 @@ class ProductsManager:
             if self.get_product_id_by_name(product.product_name) == None:
                 self.add_to_table(product)
 
-            # Categories table
+            # Categories
             self.categories_manager.manage_categories(*product.product_has_categories.categories)
             
-            # Link table product has categories
+            # Product has categories
             self.product_has_categories_manager.manage(product.product_has_categories)
 
             # Stores
-            store_name = product_infos.get('store_name')
+            self.stores_manager.manage_stores(*product.product_has_stores.stores)
+
+            # Product has stores
+            self.product_has_stores_manager.manage(product.product_has_stores)
 
     def get_product_id_by_name(self, product_name):
         query = ("""
@@ -56,6 +61,3 @@ class ProductsManager:
             product.product_name, product.ingredients_text, product.nutrition_grades, product.link
         )
         self.database_manager.cursor.execute(statement, data)
-
-    def update_table(self, product_id, category_id):
-        pass

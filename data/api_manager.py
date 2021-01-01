@@ -1,9 +1,12 @@
+"""
+"""
+
+# Third party import
 import requests
 
 class ApiManager:
-    def __init__(self):
-        pass
-
+    """
+    """
     def get_categories(self):
         categories_request = requests.get("https://world.openfoodfacts.org/categories.json").json()
         categories_tags = categories_request['tags']
@@ -17,8 +20,10 @@ class ApiManager:
         products_infos_list = []
         for category, products in self.get_products_of_categories().items():
             for product in products:
-                product_infos = {key: product.get(key)
-                                 for key in ["code", "product_name", "description", "nutrition_grades", "categories_hierarchy", "store_name"]
-                                 if product.get(key) != None}
-                products_infos_list.append(product_infos)
+                if product.get("nutrition_grades"):
+                    product_infos = {key: product.get(key)
+                                    for key in ["code", "product_name", "ingredients_text",
+                                    "nutrition_grades", "categories_hierarchy", "store_name"]
+                                    }
+                    products_infos_list.append(product_infos)
         return products_infos_list

@@ -1,8 +1,5 @@
-# Standard library import
-
-# Third party import
-
-# Local application imports
+"""
+"""
 
 class CategoriesManager:
     """Link between categories and database
@@ -36,11 +33,3 @@ class CategoriesManager:
             category,
         )
         self.database_manager.cursor.execute(statement, data)
-
-"""
-        SI self.pk:
-            UPDATE categories SET nom = self.name WHERE pk = self.pk
-        SINON
-            INSERT INTO categories ('nom') VALUES (self.name)
-            self.pk = retour_sql['pk']
-"""

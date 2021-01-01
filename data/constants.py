@@ -4,10 +4,6 @@
 # Standard library import
 import os
 
-# Third party import
-
-# Local application imports
-
 # MySQL configuration
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 MYSQL_CONFIG = {
