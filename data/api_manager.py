@@ -1,4 +1,4 @@
-"""
+"""Requests to Openfoodfact's API
 """
 
 # Third party import

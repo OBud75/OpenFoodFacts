@@ -1,8 +1,9 @@
 """
 """
+
 # Local application imports
-from data.views.models.product_has_categories_model import ProductCategories
-from data.views.models.product_has_stores_model import ProductStores
+from data.views.models.product_has_categories_model import ProductHasCategories
+from data.views.models.product_has_stores_model import ProductHasStores
 
 class ProductModel:
     def __init__(self, **product_infos):
@@ -12,5 +13,5 @@ class ProductModel:
         self.nutrition_grades = product_infos.get("nutrition_grades", "?")
         self.link = f"https://world.openfoodfacts.org/product/{self.code}/{self.product_name.replace(' ', '-')}"
 
-        self.product_has_categories = ProductCategories(self.product_name, product_infos.get("categories_hierarchy"))
-        self.product_has_stores = ProductStores(self.product_name, product_infos.get("store_name"))
+        self.product_has_categories = ProductHasCategories(self, *product_infos.get("categories_hierarchy"))
+        self.product_has_stores = ProductHasStores(self, product_infos.get("store_name"))

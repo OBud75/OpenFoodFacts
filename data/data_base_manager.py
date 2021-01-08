@@ -8,26 +8,37 @@ import mysql.connector
 
 # Local application imports
 from data import constants
+from data.api_manager import ApiManager
 from data.views.managers.products_manager import ProductsManager
+from data.views.managers.categories_manager import CategoriesManager
+from data.views.managers.stores_manager import StoresManager
+from data.views.managers.product_has_categories_manager import ProductHasCategoriesManager
+from data.views.managers.product_has_stores_manager import ProductHasStoresManager
 
 class DataBaseManager:
     """In this class we implement the SQL DataBase structure
     """
     def __init__(self, mode):
-        # Creation and connection to the DataBase
+        # Creation and/or connexion to the DataBase
         self.mydb = mysql.connector.connect(**constants.MYSQL_CONFIG)
         self.cursor = self.mydb.cursor(buffered=True)
-        self.products_manager = ProductsManager(self)
 
         if mode == "create":
             self.create_data_base()
         self.use_database()
 
-        # Instantiation of the tables
+        self.products_manager = ProductsManager(self)
+        self.categories_manager = CategoriesManager(self)
+        self.stores_manager = StoresManager(self)
+        self.product_has_categories_manager = ProductHasCategoriesManager(self)
+        self.product_has_stores_manager = ProductHasStoresManager(self)
+
+        # Create and fills tables using API
         if mode == "create":
             self.create_tables()
-            self.create_relations()
-            self.products_manager.create_products()
+            #self.create_relations()
+            self.api_manager = ApiManager()
+            self.fill_tables()
             #self.delete_database()
             self.mydb.commit()
 
@@ -48,6 +59,15 @@ class DataBaseManager:
         """)
 
     def create_tables(self):
+        """Create all the tables needed in the database
+        products
+        categories
+        stores
+        product_has_categories
+        product_has_stores
+        product_has_substitutes
+        """
+
         # Create products table
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
@@ -106,6 +126,8 @@ class DataBaseManager:
         """)
 
     def create_relations(self):
+        """Create the relations between tables
+        """
         # For table product_has_categories
         self.cursor.execute("""
         ALTER TABLE product_has_categories
@@ -144,3 +166,12 @@ class DataBaseManager:
             REFERENCES products(product_id),
         ENGINE=INNODB;
         """)
+
+    def fill_tables(self):
+        for product_infos in self.api_manager.get_products_list():
+            # Products table
+            product = self.products_manager.manage(**product_infos)
+            self.categories_manager.manage(*product.product_has_categories.categories)
+            self.product_has_categories_manager.manage(product.product_has_categories)
+            self.stores_manager.manage(*product.product_has_stores.stores)
+            self.product_has_stores_manager.manage(product.product_has_stores)

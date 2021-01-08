@@ -1,10 +1,6 @@
 """In this file we put all the informations relatives to a store
 """
 
-# Standard library import
-
-# Third party import
-
 # Local application imports
 from data.views.models.store_model import StoreModel
 
@@ -14,7 +10,7 @@ class StoresManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
 
-    def manage_stores(self, *product_has_stores):
+    def manage(self, *product_has_stores):
         for store in product_has_stores:
             if self.get_store_id_by_name(store) == None:
                 self.add_to_table(store)
@@ -35,7 +31,5 @@ class StoresManager:
             "(store_name)"
             "VALUES (%s)"
         )
-        data = (
-            store.store_name,
-        )
+        data = (store.store_name,)
         self.database_manager.cursor.execute(statement, data)

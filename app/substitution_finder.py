@@ -33,60 +33,59 @@ class SubstitutionFinder:
 2 - Retrouver mes aliments substitués.\n\
 3 - Quitter le programme\n")
         if mode == "1":
-            category = self.get_category()
-            product_name = self.get_product(category)
-            self.get_substitute(product_name, category)
+            self.select_substitute()
         elif mode == "2":
             self.display_substitutes()
         elif mode == "3":
             quit()
         self.select_mode()
 
-    def get_category(self):
-        query = ("""
-            SELECT category_name
-            FROM categories
-        """)
-        self.database_manager.cursor.execute(query)
-        categories = self.database_manager.cursor.fetchall()
-
+    def select_category(self):
+        categories = self.database_manager.categories_manager.get_categories()
         print("\nCategory list: ")
-        for number, category in enumerate(categories):
-            print(f"{number + 1}: {category[0]}")
-        index = int(input("\nChoose a category: ")) - 1
-        return categories[index][0]
 
-    def get_product(self, category_name):
-        query = ("""
-            SELECT product_name
-            FROM products JOIN categories
-            WHERE category_name = %s
-        """)
-        data = (category_name,)
-        self.database_manager.cursor.execute(query, data)
-        products_names = self.database_manager.cursor.fetchall()
-
-        print("\nProduct list: ")
-        for number, product_name in enumerate(products_names):
-            print(f"{number + 1}: {product_name[0]}")
-        index = int(input("\nSelect a product: ")) - 1
-        return products_names[index]
-
-    def get_substitute(self, product_name, category_name):
-        results = self.product_has_substitutes_manager.get_substitutes_of_product_in_category(product_name, category_name)
-        numbers = []
-        for number, product in enumerate(results):
-            print(f"{number + 1}: {[product[i] for i in range(len(product))]}")
-            numbers.append(number + 1)
+        indices = list()
+        for index, category in enumerate(categories):
+            print(f"{index + 1}: {category.category_name}")
+            indices.append(index)
 
         index = None
-        while index not in numbers:
-            index = int(input("\nChoose a product in the substitutes list: "))
+        while index not in indices:
+            index = int(input("\nChoose a category: ")) - 1
+        return categories[index]
 
-        substitute = results[index]
-        if input("\nSave product? (y|n) :") == "y":
-            self.product_has_substitutes_manager.save_substitute(product_name[0], substitute[0])
-        return results[index]
+    def select_product(self, category):
+        products = self.database_manager.categories_manager.get_products(category)
+        print("\nProduct list: ")
+
+        indices = list()
+        for index, product in enumerate(products):
+            print(f"{index + 1}: {product.product_name}")
+            indices.append(index)
+
+        index = None
+        while index not in indices:
+            index = int(input("\nSelect a product: ")) - 1
+        return products[index]
+
+    def select_substitute(self):
+        category = self.select_category()
+        product = self.select_product(category)
+        print(product)
+        substitutes = self.product_has_substitutes_manager.get_substitutes(product)
+
+        indices = list()
+        for index, product in enumerate(substitutes):
+            print(f"{index + 1}: {product.product_name}")
+            indices.append(index + 1)
+
+        index = None
+        while index not in indices:
+            index = int(input("\nChoose a product in the substitutes list: "))
+        substitute = substitutes[index]
+
+        if input("\nSave product? (y|n): ") == "y":
+            self.product_has_substitutes_manager.save_substitute(product.product_name, substitute.product_name)
 
     def display_substitutes(self):
         self.product_has_substitutes_manager.get_products_with_substitutes()
