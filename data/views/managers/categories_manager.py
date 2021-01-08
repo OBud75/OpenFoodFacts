@@ -26,7 +26,6 @@ class CategoriesManager:
         result = self.database_manager.cursor.fetchone()
         if result != None:
             return result[0]
-        return False
 
     def add_to_table(self, category):
         statement = (

@@ -36,10 +36,9 @@ class DataBaseManager:
         # Create and fills tables using API
         if mode == "create":
             self.create_tables()
-            #self.create_relations()
+            self.create_relations()
             self.api_manager = ApiManager()
             self.fill_tables()
-            #self.delete_database()
             self.mydb.commit()
 
     def create_data_base(self, name=constants.DATABASE_NAME):
@@ -51,11 +50,6 @@ class DataBaseManager:
     def use_database(self, name=constants.DATABASE_NAME):
         self.cursor.execute(f"""
         USE {name};
-        """)
-
-    def delete_database(self, name=constants.DATABASE_NAME):
-        self.cursor.execute(f"""
-        DROP DATABASE IF EXISTS {name}
         """)
 
     def create_tables(self):
@@ -169,7 +163,6 @@ class DataBaseManager:
 
     def fill_tables(self):
         for product_infos in self.api_manager.get_products_list():
-            # Products table
             product = self.products_manager.manage(**product_infos)
             self.categories_manager.manage(*product.product_has_categories.categories)
             self.product_has_categories_manager.manage(product.product_has_categories)

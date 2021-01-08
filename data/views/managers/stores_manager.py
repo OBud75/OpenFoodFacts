@@ -23,7 +23,9 @@ class StoresManager:
         """)
         data = (store.store_name,)
         self.database_manager.cursor.execute(query, data)
-        return self.database_manager.cursor.fetchone()
+        result = self.database_manager.cursor.fetchone()
+        if result != None:
+            return result[0]
 
     def add_to_table(self, store):
         statement = (
