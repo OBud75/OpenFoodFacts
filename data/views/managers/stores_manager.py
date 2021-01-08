@@ -12,7 +12,7 @@ class StoresManager:
 
     def manage(self, *product_has_stores):
         for store in product_has_stores:
-            if self.get_store_id_by_name(store) == None:
+            if store.store_name and self.get_store_id_by_name(store) == None:
                 self.add_to_table(store)
 
     def get_store_id_by_name(self, store):

@@ -13,5 +13,5 @@ class ProductModel:
         self.nutrition_grades = product_infos.get("nutrition_grades", "?")
         self.link = f"https://world.openfoodfacts.org/product/{self.code}/{self.product_name.replace(' ', '-')}"
 
-        self.product_has_categories = ProductHasCategories(self, *product_infos.get("categories_hierarchy"))
-        self.product_has_stores = ProductHasStores(self, product_infos.get("store_name"))
+        self.product_has_categories = ProductHasCategories(self, *product_infos.get("categories_hierarchy", "None"))
+        self.product_has_stores = ProductHasStores(self, product_infos.get("store_name", "None"))

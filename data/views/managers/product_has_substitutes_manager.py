@@ -1,6 +1,7 @@
 """
 """
 
+# Local application imports
 from data.views.models.product_model import ProductModel
 
 class ProductHasSubstitutesManager:
