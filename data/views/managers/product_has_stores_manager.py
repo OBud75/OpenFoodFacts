@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """
 """
 
@@ -9,10 +12,10 @@ class ProductHasStoresManager:
         product = product_has_stores.product
         stores = product_has_stores.stores
 
-        product.product_id = self.database_manager.products_manager.get_product_id_by_name(product)
+        product.product_id = self.database_manager.products_manager.get_product_id(product)
         for store in stores:
             if store.store_name != None:
-                store_id = self.database_manager.stores_manager.get_store_id_by_name(store)
+                store_id = self.database_manager.stores_manager.get_store_id(store)
                 self.add_to_table(product_id, store_id)
 
     def add_to_table(self, product, store):

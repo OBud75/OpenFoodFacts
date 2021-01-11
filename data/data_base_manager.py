@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """In this file we implement the database manager
 Creation of the database and the tables
 Use of MySQL (cursors, connector...)
@@ -54,22 +57,18 @@ class DataBaseManager:
 
     def create_tables(self):
         """Create all the tables needed in the database
-        products
-        categories
-        stores
-        product_has_categories
-        product_has_stores
-        product_has_substitutes
+        products, categories, stores
+        product_has_categories, product_has_stores, product_has_substitutes
         """
 
         # Create products table
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            product_name VARCHAR(100) NOT NULL,
-            ingredients_text TEXT(100),
+            product_name LONGTEXT NOT NULL,
+            ingredients_text LONGTEXT,
             nutrition_grades VARCHAR(1) NOT NULL,
-            link VARCHAR(150) NOT NULL
+            link LONGTEXT NOT NULL
             )
         ENGINE=INNODB;
         """)
@@ -78,7 +77,8 @@ class DataBaseManager:
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            category_name VARCHAR(100) NOT NULL
+            category_name LONGTEXT NOT NULL,
+            category_hierarchy INT UNSIGNED NOT NULL
             )
         ENGINE=INNODB;
         """)
@@ -87,7 +87,7 @@ class DataBaseManager:
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS stores (
             store_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            store_name VARCHAR(45)
+            store_name LONGTEXT
             )
         ENGINE=INNODB;
         """)
@@ -122,6 +122,7 @@ class DataBaseManager:
     def create_relations(self):
         """Create the relations between tables
         """
+
         # For table product_has_categories
         self.cursor.execute("""
         ALTER TABLE product_has_categories

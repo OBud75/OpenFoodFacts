@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """
 """
 
@@ -20,7 +23,7 @@ class CategoriesManager:
         query = ("""
                 SELECT category_id
                 FROM categories
-                WHERE category_name LIKE %s
+                WHERE category_name = %s
             """)
         data = (category.category_name,)
         self.database_manager.cursor.execute(query, data)
@@ -31,28 +34,33 @@ class CategoriesManager:
     def add_to_table(self, category):
         statement = (
             "INSERT INTO categories"
-            "(category_name)"
-            "VALUES (%s)"
+            "(category_name, category_hierarchy)"
+            "VALUES (%s, %s)"
         )
-        data = (category.category_name,)
+        data = (category.category_name, category.category_hierarchy)
         self.database_manager.cursor.execute(statement, data)
 
     def get_categories(self):
         query = ("""
             SELECT category_name
             FROM categories
+            WHERE category_hierarchy = 0
         """)
         self.database_manager.cursor.execute(query)
         categories_names = self.database_manager.cursor.fetchall()
-        return [CategoryModel(category_name[0]) for category_name in categories_names]
+        return [CategoryModel(0, category_name[0]) for category_name in categories_names]
 
-    def get_products(self, category):
+    def get_categories_in_category(self, category):
         query = ("""
-            SELECT product_name
-            FROM products JOIN categories
-            WHERE category_name = %s
+            SELECT DISTINCT category_name
+            FROM products JOIN product_has_categories JOIN categories
+            WHERE product_name IN (SELECT product_name
+                                   FROM products JOIN product_has_categories JOIN categories
+                                   WHERE category_name = %s)
+            AND category_hierarchy = %s
         """)
-        data = (category.category_name,)
+        data = (category.category_name, category.category_hierarchy + 1)
         self.database_manager.cursor.execute(query, data)
-        products_names = self.database_manager.cursor.fetchall()
-        return [ProductModel(**{"product_name": product_name[0]}) for product_name in products_names]
+        categories_names = self.database_manager.cursor.fetchall()
+        return [CategoryModel(category.category_hierarchy + 1, category_name[0])
+                for category_name in categories_names]

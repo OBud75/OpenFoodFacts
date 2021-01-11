@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """In this file we put all the informations relatives to a store
 """
 
@@ -12,10 +15,10 @@ class StoresManager:
 
     def manage(self, *product_has_stores):
         for store in product_has_stores:
-            if store.store_name and self.get_store_id_by_name(store) == None:
+            if store.store_name and self.get_store_id(store) == None:
                 self.add_to_table(store)
 
-    def get_store_id_by_name(self, store):
+    def get_store_id(self, store):
         query = ("""
             SELECT store_id
             FROM stores

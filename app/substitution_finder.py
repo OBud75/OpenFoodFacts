@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """In this file we define our business model
 
 1 - Quel aliment souhaitez-vous remplacer ?
@@ -35,57 +38,54 @@ class SubstitutionFinder:
         if mode == "1":
             self.select_substitute()
         elif mode == "2":
-            self.display_substitutes()
+            self.display_saved_substitutes()
         elif mode == "3":
             quit()
         self.select_mode()
 
-    def select_category(self):
-        categories = self.database_manager.categories_manager.get_categories()
-        print("\nCategory list: ")
-
-        indices = list()
-        for index, category in enumerate(categories):
-            print(f"{index + 1}: {category.category_name}")
-            indices.append(index)
-
-        index = None
-        while index not in indices:
-            index = int(input("\nChoose a category: ")) - 1
-        return categories[index]
+    def select_category(self, category=None):
+        if category == None:
+            categories = self.database_manager.categories_manager.get_categories()
+        else:
+            categories = self.database_manager.categories_manager.get_categories_in_category(category)
+        category = self.select_in_list("categories", categories)
+        while not self.database_manager.product_has_categories_manager.count_products_in_category(category) < 50:
+            self.select_category(category)
+        return category
 
     def select_product(self, category):
-        products = self.database_manager.categories_manager.get_products(category)
-        print("\nProduct list: ")
-
-        indices = list()
-        for index, product in enumerate(products):
-            print(f"{index + 1}: {product.product_name}")
-            indices.append(index)
-
-        index = None
-        while index not in indices:
-            index = int(input("\nSelect a product: ")) - 1
-        return products[index]
+        products = self.database_manager.product_has_categories_manager.get_products_in_category(category)
+        return self.select_in_list("products", products)
 
     def select_substitute(self):
         category = self.select_category()
         product = self.select_product(category)
-        print(product)
-        substitutes = self.product_has_substitutes_manager.get_substitutes(product)
+        substitutes = self.product_has_substitutes_manager.get_substitutes_of_product(product)
+        substitute = self.select_in_list("substitutes", substitutes)
 
+        # Ask if the user wants to save his choice
+        if input("\nSave product? (y|n): ") == "y":
+            self.product_has_substitutes_manager.save_substitute(product, substitute)
+
+    def display_saved_substitutes(self):
+        products = self.product_has_substitutes_manager.get_products_with_substitutes()
+        product = self.select_in_list("products", products)
+        for product in self.product_has_substitutes_manager.get_saved_substitutes_of_product(product):
+            print(product.product_name)
+
+    def select_in_list(self, mode, inputs):
         indices = list()
-        for index, product in enumerate(substitutes):
-            print(f"{index + 1}: {product.product_name}")
-            indices.append(index + 1)
+        if mode == "products" or mode == "substitutes":
+            for index, product in enumerate(inputs):
+                print(f"{index + 1}: {product.product_name}")
+                indices.append(index + 1)
+
+        elif mode == "categories":
+            for index, category in enumerate(inputs):
+                print(f"{index + 1}: {category.category_name}")
+                indices.append(index + 1)
 
         index = None
         while index not in indices:
-            index = int(input("\nChoose a product in the substitutes list: "))
-        substitute = substitutes[index]
-
-        if input("\nSave product? (y|n): ") == "y":
-            self.product_has_substitutes_manager.save_substitute(product.product_name, substitute.product_name)
-
-    def display_substitutes(self):
-        self.product_has_substitutes_manager.get_products_with_substitutes()
+            index = int(input(f"\nChoose a product in the {mode} list: "))
+        return inputs[index - 1]

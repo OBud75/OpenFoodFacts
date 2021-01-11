@@ -1,3 +1,6 @@
+# coding: utf-8
+#! /usr/bin/env python3
+
 """In this file we put all the informations relatives to a product
 """
 
@@ -10,11 +13,11 @@ class ProductsManager:
 
     def manage(self, **product_infos):
         product = ProductModel(**product_infos)
-        if self.get_product_id_by_name(product) == None:
+        if self.get_product_id(product) == None:
             self.add_to_table(product)
         return product
 
-    def get_product_id_by_name(self, product):
+    def get_product_id(self, product):
         query = ("""
             SELECT product_id
             FROM products
@@ -34,3 +37,13 @@ class ProductsManager:
         )
         data = (product.product_name, product.ingredients_text, product.nutrition_grades, product.link)
         self.database_manager.cursor.execute(statement, data)
+
+    def get_nutrition_grades(self, product):
+        query = ("""
+            SELECT nutrition_grades
+            FROM products
+            WHERE product_name = %s
+        """)
+        data = (product.product_name,)
+        self.database_manager.cursor.execute(query, data)
+        return self.database_manager.cursor.fetchone()[0]
