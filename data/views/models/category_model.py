@@ -5,6 +5,5 @@
 """
 
 class CategoryModel:
-    def __init__(self, category_hierarchy, category_name):
-        self.category_hierarchy = category_hierarchy
+    def __init__(self, category_name):
         self.category_name = category_name

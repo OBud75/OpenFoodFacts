@@ -16,6 +16,7 @@ from data.views.managers.products_manager import ProductsManager
 from data.views.managers.categories_manager import CategoriesManager
 from data.views.managers.stores_manager import StoresManager
 from data.views.managers.product_has_categories_manager import ProductHasCategoriesManager
+from data.views.managers.category_has_categories_manager import CategoryHasCategoriesManager
 from data.views.managers.product_has_stores_manager import ProductHasStoresManager
 
 class DataBaseManager:
@@ -34,6 +35,7 @@ class DataBaseManager:
         self.categories_manager = CategoriesManager(self)
         self.stores_manager = StoresManager(self)
         self.product_has_categories_manager = ProductHasCategoriesManager(self)
+        self.category_has_categories_manager = CategoryHasCategoriesManager(self)
         self.product_has_stores_manager = ProductHasStoresManager(self)
 
         # Create and fills tables using API
@@ -58,13 +60,15 @@ class DataBaseManager:
     def create_tables(self):
         """Create all the tables needed in the database
         products, categories, stores
-        product_has_categories, product_has_stores, product_has_substitutes
+        product_has_categories, category_has_categories,
+        product_has_stores, product_has_substitutes
         """
 
         # Create products table
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            code BIGINT UNSIGNED UNIQUE NOT NULL,
             product_name LONGTEXT NOT NULL,
             ingredients_text LONGTEXT,
             nutrition_grades VARCHAR(1) NOT NULL,
@@ -77,8 +81,7 @@ class DataBaseManager:
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-            category_name LONGTEXT NOT NULL,
-            category_hierarchy INT UNSIGNED NOT NULL
+            category_name LONGTEXT NOT NULL
             )
         ENGINE=INNODB;
         """)
@@ -97,6 +100,15 @@ class DataBaseManager:
         CREATE TABLE IF NOT EXISTS product_has_categories (
             product_id INT UNSIGNED,
             category_id INT UNSIGNED
+            )
+        ENGINE=INNODB;
+        """)
+
+        # Create table category_has_categories
+        self.cursor.execute("""
+        CREATE TABLE IF NOT EXISTS category_has_categories (
+            category_id INT UNSIGNED,
+            child_id INT UNSIGNED
             )
         ENGINE=INNODB;
         """)
@@ -136,6 +148,19 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
+        # For table category_has_categories
+        self.cursor.execute("""
+        ALTER TABLE category_has_categories
+            ADD CONSTRAINT fk_category_has_categories_category_id
+            FOREIGN KEY (category_id)
+            REFERENCES categories(category_id),
+
+            ADD CONSTRAINT fk_category_has_categories_child_id
+            FOREIGN KEY (child_id)
+            REFERENCES categories(category_id),
+        ENGINE=INNODB;
+        """)
+
         # For table product_has_store
         self.cursor.execute("""
         ALTER TABLE product_has_stores
@@ -165,7 +190,16 @@ class DataBaseManager:
     def fill_tables(self):
         for product_infos in self.api_manager.get_products_list():
             product = self.products_manager.manage(**product_infos)
-            self.categories_manager.manage(*product.product_has_categories.categories)
+
+            categories = list()
+            for category_has_categories in product.product_has_categories.categories_have_categories:
+                categories.append(category_has_categories.category)
+                for child in category_has_categories.childs:
+                    if child:
+                        categories.append(child)
+            self.categories_manager.manage(*categories)
+
             self.product_has_categories_manager.manage(product.product_has_categories)
+            self.category_has_categories_manager.manage(*product.product_has_categories.categories_have_categories)
             self.stores_manager.manage(*product.product_has_stores.stores)
             self.product_has_stores_manager.manage(product.product_has_stores)

@@ -4,11 +4,9 @@
 """
 """
 
-# Local application imports
-from data.views.models.category_model import CategoryModel
-
-class ProductHasCategories:
-    def __init__(self, product, *product_categories):
+class ProductHasCategoriesModel:
+    def __init__(self, product, *categories_have_categories):
         self.product = product
-        self.categories = [CategoryModel(category_hierarchy, category_name)
-                           for category_hierarchy, category_name in enumerate(product_categories)]
+        self.categories_have_categories = [category_has_categories
+                                           for category_has_categories
+                                           in categories_have_categories]

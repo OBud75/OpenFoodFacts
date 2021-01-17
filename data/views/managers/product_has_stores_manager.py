@@ -15,8 +15,8 @@ class ProductHasStoresManager:
         product.product_id = self.database_manager.products_manager.get_product_id(product)
         for store in stores:
             if store.store_name != None:
-                store_id = self.database_manager.stores_manager.get_store_id(store)
-                self.add_to_table(product_id, store_id)
+                store.store_id = self.database_manager.stores_manager.get_store_id(store)
+                self.add_to_table(product, store)
 
     def add_to_table(self, product, store):
         statement = (

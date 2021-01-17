@@ -31,19 +31,26 @@ class ProductsManager:
 
     def add_to_table(self, product):
         statement = (
-            "INSERT INTO products"
-            "(product_name, ingredients_text, nutrition_grades, link)"
-            "VALUES (%s, %s, %s, %s)"
+            "INSERT IGNORE INTO products"
+            "(code, product_name, ingredients_text, nutrition_grades, link)"
+            "VALUES (%s, %s, %s, %s, %s)"
         )
-        data = (product.product_name, product.ingredients_text, product.nutrition_grades, product.link)
+        data = (
+            product.code,
+            product.product_name,
+            product.ingredients_text,
+            product.nutrition_grades,
+            product.link
+        )
         self.database_manager.cursor.execute(statement, data)
 
-    def get_nutrition_grades(self, product):
-        query = ("""
-            SELECT nutrition_grades
-            FROM products
-            WHERE product_name = %s
-        """)
-        data = (product.product_name,)
-        self.database_manager.cursor.execute(query, data)
-        return self.database_manager.cursor.fetchone()[0]
+    def create_products(self, *products_infos_list):
+        products = list()
+        for product_infos_list in products_infos_list:
+            product_infos = {key: product_infos_list[index] for index, key in enumerate(
+                            ["product_id", "code", "product_name", "ingredients_text", "nutrition_grades", "link"])}
+            product = ProductModel(**product_infos)
+            product.product_has_categories = self.database_manager.product_has_categories_manager.create_product_has_categories(product)
+            #product.product_has_stores = self.database_manager.product_has_stores_manager.get_product_has_stores(product)
+            products.append(product)
+        return products

@@ -43,14 +43,13 @@ class SubstitutionFinder:
             quit()
         self.select_mode()
 
-    def select_category(self, category=None):
-        if category == None:
-            categories = self.database_manager.categories_manager.get_categories()
-        else:
-            categories = self.database_manager.categories_manager.get_categories_in_category(category)
+    def select_category(self):
+        categories = self.database_manager.categories_manager.get_categories()
         category = self.select_in_list("categories", categories)
-        while not self.database_manager.product_has_categories_manager.count_products_in_category(category) < 50:
-            self.select_category(category)
+
+        while self.database_manager.categories_manager.count_products_in_category(category) > 30:
+            categories = self.database_manager.category_has_categories_manager.get_categories_in_category(category)
+            category = self.select_in_list("categories", categories)
         return category
 
     def select_product(self, category):
@@ -60,12 +59,18 @@ class SubstitutionFinder:
     def select_substitute(self):
         category = self.select_category()
         product = self.select_product(category)
-        substitutes = self.product_has_substitutes_manager.get_substitutes_of_product(product)
+
+        product_has_substitutes = self.product_has_substitutes_manager.get_substitutes_of_product(product)
+        substitutes = product_has_substitutes.substitutes
         substitute = self.select_in_list("substitutes", substitutes)
 
-        # Ask if the user wants to save his choice
-        if input("\nSave product? (y|n): ") == "y":
-            self.product_has_substitutes_manager.save_substitute(product, substitute)
+        # Asks if the user wants to save his choice
+        if substitute:
+            answer = None
+            while answer not in ["y", "n"]:
+                answer = input("\nSave product? (y|n): ")
+            if answer == "y":
+                self.product_has_substitutes_manager.save_substitute(product, substitute)
 
     def display_saved_substitutes(self):
         products = self.product_has_substitutes_manager.get_products_with_substitutes()
@@ -85,7 +90,13 @@ class SubstitutionFinder:
                 print(f"{index + 1}: {category.category_name}")
                 indices.append(index + 1)
 
+        if not indices:
+            print(f"Sorry, no {mode} for this product")
+            self.select_mode()
+
         index = None
         while index not in indices:
-            index = int(input(f"\nChoose a product in the {mode} list: "))
+            index = input(f"\nMake your selection in the {mode} list: ")
+            if index.isdigit():
+                index = int(index)
         return inputs[index - 1]

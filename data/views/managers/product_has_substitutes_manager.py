@@ -4,56 +4,65 @@
 """
 """
 
-# Local application imports
-from data.views.models.product_model import ProductModel
+from data.views.models.product_has_substitute_model import ProductHasSubstituteModel
 
 class ProductHasSubstitutesManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
 
     def save_substitute(self, product, substitute):
-        product_id = self.database_manager.products_manager.get_product_id(product)
-        substitute_id = self.database_manager.products_manager.get_product_id(substitute)
+        product.product_id = self.database_manager.products_manager.get_product_id(product)
+        substitute.product_id = self.database_manager.products_manager.get_product_id(substitute)
         statement = (
             "INSERT INTO product_has_substitutes"
             "(product_id, substitute_id)"
             "VALUES (%s, %s)"
         )
-        data = (product_id, substitute_id)
+        data = (product.product_id, substitute.product_id)
         self.database_manager.cursor.execute(statement, data)
         self.database_manager.mydb.commit()
 
+    def get_substitutes_of_product(self, product):
+        # select product_name
+        # where nutrition_grades < %s
+        # and 5 plus hautes categories in requestes categories
+        query = ("""
+            SELECT DISTINCT(p.product_id), code, product_name, ingredients_text, nutrition_grades, link
+            FROM product_has_categories AS phc
+            INNER JOIN (SELECT DISTINCT(categories.category_id)
+                        FROM categories
+                        JOIN product_has_categories) AS c
+            ON phc.category_id = c.category_id
+            INNER JOIN products AS p
+            ON phc.product_id = p.product_id
+            WHERE nutrition_grades < %s
+        """)
+        data = (product.product_id,)
+        self.database_manager.cursor.execute(query, data)
+        substitutes_infos = self.database_manager.cursor.fetchall()
+        substitutes = self.database_manager.products_manager.create_products(*substitutes_infos)
+        return ProductHasSubstituteModel(product, *substitutes)
+
     def get_products_with_substitutes(self):
         self.database_manager.cursor.execute("""
-            SELECT DISTINCT product_name
-            FROM products JOIN product_has_substitutes
+            SELECT DISTINCT(p.product_id), code, product_name, ingredients_text, nutrition_grades, link
+            FROM product_has_substitutes AS phs
+            JOIN products AS p
+            ON phs.product_id = p.product_id
         """)
-        products_names = self.database_manager.cursor.fetchall()
-        return [ProductModel(**{"product_name": product_name[0]}) for product_name in products_names]
-
-    def get_substitutes_of_product(self, product):
-        query = ("""
-            SELECT DISTINCT product_name
-            FROM products JOIN product_has_categories JOIN categories
-            WHERE category_name IN (SELECT category_name
-                                    FROM products JOIN product_has_categories JOIN categories
-                                    WHERE product_name = %s)
-            AND nutrition_grades < %s
-        """)
-        data = (product.product_name, self.database_manager.products_manager.get_nutrition_grades(product))
-        self.database_manager.cursor.execute(query, data)
-        products_names = self.database_manager.cursor.fetchall()
-        return [ProductModel(**{"product_name": product_name[0]}) for product_name in products_names]
+        products_infos = self.database_manager.cursor.fetchall()
+        return self.database_manager.products_manager.create_products(*products_infos)
 
     def get_saved_substitutes_of_product(self, product):
+        product.product_id = self.database_manager.products_manager.get_product_id(product)
         query = ("""
-            SELECT product_name
+            SELECT *
             FROM products
             WHERE product_id IN (SELECT substitute_id
                                  FROM product_has_substitutes
                                  WHERE product_id = %s)
         """)
-        data = (self.database_manager.products_manager.get_product_id(product),)
+        data = (product.product_id,)
         self.database_manager.cursor.execute(query, data)
-        products_names = self.database_manager.cursor.fetchall()
-        return [ProductModel(**{"product_name": product_name[0]}) for product_name in products_names]
+        products_infos = self.database_manager.cursor.fetchall()
+        return self.database_manager.products_manager.create_products(*products_infos)

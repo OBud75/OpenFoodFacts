@@ -6,6 +6,8 @@
 
 # Local application imports
 from data.views.models.product_model import ProductModel
+from data.views.models.category_model import CategoryModel
+from data.views.models.product_has_categories_model import ProductHasCategoriesModel
 
 class ProductHasCategoriesManager:
     def __init__(self, database_manager):
@@ -13,10 +15,10 @@ class ProductHasCategoriesManager:
 
     def manage(self, product_has_categories):
         product = product_has_categories.product
-        categories = product_has_categories.categories
         product.product_id = self.database_manager.products_manager.get_product_id(product)
-        for category in categories:
-            category.category_id = self.database_manager.categories_manager.get_category_id_by_name(category)
+        for category_has_categories in product_has_categories.categories_have_categories:
+            category = category_has_categories.category
+            category.category_id = self.database_manager.categories_manager.get_category_id(category)
             self.add_to_table(product, category)
 
     def add_to_table(self, product, category):
@@ -30,23 +32,36 @@ class ProductHasCategoriesManager:
 
     def get_products_in_category(self, category):
         query = ("""
-            SELECT product_name
-            FROM products JOIN categories
+            SELECT *
+            FROM products AS p
+            INNER JOIN product_has_categories AS phc
+            ON p.product_id = phc.product_id
+            INNER JOIN categories AS c
+            ON phc.category_id = c.category_id
             WHERE category_name = %s
         """)
         data = (category.category_name,)
         self.database_manager.cursor.execute(query, data)
-        products_names = self.database_manager.cursor.fetchall()
-        return [ProductModel(**{"product_name": product_name[0]}) for product_name in products_names]
+        products_infos = self.database_manager.cursor.fetchall()
+        return self.database_manager.products_manager.create_products(*products_infos)
 
-    def count_products_in_category(self, category):
+    def create_product_has_categories(self, product):
         query = ("""
-            SELECT COUNT(DISTINCT product_name)
-            FROM products JOIN product_has_categories JOIN categories
-            WHERE category_name = %s
+            SELECT category_name
+            FROM categories AS c
+            INNER JOIN product_has_categories AS phc
+            ON c.category_id = phc.category_id
+            INNER JOIN products AS p
+            ON phc.product_id = p.product_id
+            WHERE product_name = %s
         """)
-        data = (category.category_name,)
+        data = (product.product_name,)
         self.database_manager.cursor.execute(query, data)
-        result = self.database_manager.cursor.fetchone()
-        if result != None:
-            return result[0]
+        categories_names = self.database_manager.cursor.fetchall()
+
+        categories_have_categories = list()
+        for category_name in categories_names:
+            category = CategoryModel(category_name[0])
+            category_has_categories = self.database_manager.category_has_categories_manager.create_category_has_categories(category)
+            categories_have_categories.append(category_has_categories)
+        return ProductHasCategoriesModel(product, *categories_have_categories)

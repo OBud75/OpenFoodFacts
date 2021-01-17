@@ -16,51 +16,50 @@ class CategoriesManager:
 
     def manage(self, *categories):
         for category in categories:
-            if not self.get_category_id_by_name(category):
+            if not self.get_category_id(category):
                 self.add_to_table(category)
 
-    def get_category_id_by_name(self, category):
+    def get_category_id(self, category):
         query = ("""
                 SELECT category_id
                 FROM categories
                 WHERE category_name = %s
             """)
-        data = (category.category_name,)
-        self.database_manager.cursor.execute(query, data)
-        result = self.database_manager.cursor.fetchone()
-        if result != None:
-            return result[0]
+        if category:
+            data = (category.category_name,)
+            self.database_manager.cursor.execute(query, data)
+            result = self.database_manager.cursor.fetchone()
+            if result != None:
+                return result[0]
+        return None
 
     def add_to_table(self, category):
         statement = (
             "INSERT INTO categories"
-            "(category_name, category_hierarchy)"
-            "VALUES (%s, %s)"
+            "(category_name)"
+            "VALUES (%s)"
         )
-        data = (category.category_name, category.category_hierarchy)
+        data = (category.category_name,)
         self.database_manager.cursor.execute(statement, data)
 
     def get_categories(self):
-        query = ("""
+        self.database_manager.cursor.execute("""
             SELECT category_name
             FROM categories
-            WHERE category_hierarchy = 0
         """)
-        self.database_manager.cursor.execute(query)
         categories_names = self.database_manager.cursor.fetchall()
-        return [CategoryModel(0, category_name[0]) for category_name in categories_names]
-
-    def get_categories_in_category(self, category):
-        query = ("""
-            SELECT DISTINCT category_name
-            FROM products JOIN product_has_categories JOIN categories
-            WHERE product_name IN (SELECT product_name
-                                   FROM products JOIN product_has_categories JOIN categories
-                                   WHERE category_name = %s)
-            AND category_hierarchy = %s
-        """)
-        data = (category.category_name, category.category_hierarchy + 1)
-        self.database_manager.cursor.execute(query, data)
-        categories_names = self.database_manager.cursor.fetchall()
-        return [CategoryModel(category.category_hierarchy + 1, category_name[0])
+        return [CategoryModel(category_name[0])
                 for category_name in categories_names]
+
+    def count_products_in_category(self, category):
+        query = ("""
+            SELECT COUNT(*)
+            FROM product_has_categories AS phc
+            INNER JOIN (SELECT category_id
+                        FROM categories
+                        WHERE category_name = %s) AS c
+            ON phc.category_id = c.category_id
+        """)
+        data = (category.category_name,)
+        self.database_manager.cursor.execute(query, data)
+        return self.database_manager.cursor.fetchone()[0]
