@@ -19,7 +19,7 @@ L'utilisateur a alors la possibilité d'enregistrer le résultat dans la base de
 """
 
 # Local application imports
-from data.views.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
+from app.views.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
 
 class SubstitutionFinder:
     """Class representing the needs of the user
@@ -45,6 +45,7 @@ class SubstitutionFinder:
 
     def select_category(self):
         categories = self.database_manager.categories_manager.get_categories()
+        #categories = self.database_manager.create_categories(*constants.STARTERS_CATEGORIES)
         category = self.select_in_list("categories", categories)
 
         while self.database_manager.categories_manager.count_products_in_category(category) > 30:
@@ -60,7 +61,7 @@ class SubstitutionFinder:
         category = self.select_category()
         product = self.select_product(category)
 
-        product_has_substitutes = self.product_has_substitutes_manager.get_substitutes_of_product(product)
+        product_has_substitutes = self.product_has_substitutes_manager.get_product_has_substitutes(product)
         substitutes = product_has_substitutes.substitutes
         substitute = self.select_in_list("substitutes", substitutes)
 
@@ -97,6 +98,7 @@ class SubstitutionFinder:
         index = None
         while index not in indices:
             index = input(f"\nMake your selection in the {mode} list: ")
+            print("\n\n")
             if index.isdigit():
                 index = int(index)
         return inputs[index - 1]

@@ -10,7 +10,7 @@ from sys import exit
 # Third party import
 
 # Local application imports
-from data.data_base_manager import DataBaseManager
+from app.views.database_manager import DataBaseManager
 from app.substitution_finder import SubstitutionFinder
 from app.graphics import Graphic
 
