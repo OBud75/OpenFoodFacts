@@ -17,4 +17,26 @@ MYSQL_CONFIG = {
         }
 DATABASE_NAME = "openfoodfacts"
 
-STARTERS_CATEGORIES = ["", ""]
+STARTERS_CATEGORIES = [
+            "Produits labellisés",
+            "Bio",
+            "Plats cuisinees",
+            "100 % légumes",
+            "Barquettes",
+            "Cremes entieres",
+            "Desserts sucrés",
+            "Preparations pour desserts lactes",
+            "Mélanges de fruits",
+            "Multifruits",
+            "Boissons salées",
+            "Préparations pour boissons",
+            "Boissons froides",
+            "Lait à boire",
+            "Spécialités laitières"
+        ]
+
+# Substitutions
+SELECT_MODE_LIST = [
+            "Quel aliment souhaitez-vous remplacer ?",
+            "Retrouver mes aliments substitués."
+        ]

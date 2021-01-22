@@ -22,7 +22,15 @@ class ProductHasSubstitutesManager:
         self.database_manager.cursor.execute(statement, data)
         self.database_manager.mydb.commit()
 
-    def get_product_has_substitutes(self, product):
+    def create_product_has_substitutes(self, product):
+        # SELECT *
+        # FROM products
+        #
+        #
+        # WHERE count(categories en commun entre le produit et la recherche) > 2
+                            #select category_id            select category_id
+        #
+        # nutrition_grades < %s
         query = ("""
             SELECT *
             FROM products AS p
@@ -42,7 +50,7 @@ class ProductHasSubstitutesManager:
                         FROM product_has_categories
                         WHERE product_id = %s)))
         """)
-        data = (product.product_id, product.nutrition_grades)
+        data = (product.nutrition_grades, product.product_id)
         self.database_manager.cursor.execute(query, data)
         substitutes_infos = self.database_manager.cursor.fetchall()
         substitutes = self.database_manager.products_manager.create_products(*substitutes_infos)

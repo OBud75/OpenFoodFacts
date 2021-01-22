@@ -32,9 +32,9 @@ class ProductHasCategoriesManager:
         query = ("""
             SELECT *
             FROM products AS p
-            INNER JOIN product_has_categories AS phc
+            JOIN product_has_categories AS phc
             ON p.product_id = phc.product_id
-            INNER JOIN categories AS c
+            JOIN categories AS c
             ON phc.category_id = c.category_id
             WHERE category_name = %s
         """)
@@ -47,9 +47,9 @@ class ProductHasCategoriesManager:
         query = ("""
             SELECT c.category_id, category_name
             FROM categories AS c
-            INNER JOIN product_has_categories AS phc
+            JOIN product_has_categories AS phc
             ON c.category_id = phc.category_id
-            INNER JOIN products AS p
+            JOIN products AS p
             ON phc.product_id = p.product_id
             WHERE product_name = %s
         """)

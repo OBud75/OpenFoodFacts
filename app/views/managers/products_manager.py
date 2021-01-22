@@ -44,13 +44,29 @@ class ProductsManager:
         )
         self.database_manager.cursor.execute(statement, data)
 
+    def create_product_by_name(self, product_name):
+        query = ("""
+            SELECT product_id, code, product_name, ingredients_text, nutrition_grades, link
+            FROM products
+            WHERE product_name = %s
+        """)
+        data = (product_name,)
+        self.database_manager.cursor.execute(query, data)
+        product_infos_list = self.database_manager.cursor.fetchall()
+        if product_infos_list != None:
+            return self.create_product(*product_infos_list)
+
     def create_products(self, *products_infos_list):
         products = list()
         for product_infos_list in products_infos_list:
-            product_infos = {key: product_infos_list[index] for index, key in enumerate(
-                            ["product_id", "code", "product_name", "ingredients_text", "nutrition_grades", "link"])}
-            product = ProductModel(**product_infos)
-            product.product_has_categories = self.database_manager.product_has_categories_manager.create_product_has_categories(product)
-            #product.product_has_stores = self.database_manager.product_has_stores_manager.get_product_has_stores(product)
+            product = self.create_product(product_infos_list)
             products.append(product)
         return products
+
+    def create_product(self, product_infos_list):
+        product_infos = {key: product_infos_list[index] for index, key in enumerate(
+                        ["product_id", "code", "product_name", "ingredients_text", "nutrition_grades", "link"])}
+        product = ProductModel(**product_infos)
+        product.product_has_categories = self.database_manager.product_has_categories_manager.create_product_has_categories(product)
+        #product.product_has_stores = self.database_manager.product_has_stores_manager.get_product_has_stores(product)
+        return product

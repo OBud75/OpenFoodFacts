@@ -19,6 +19,7 @@ L'utilisateur a alors la possibilité d'enregistrer le résultat dans la base de
 """
 
 # Local application imports
+from app import constants
 from app.views.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
 
 class SubstitutionFinder:
@@ -44,11 +45,10 @@ class SubstitutionFinder:
         self.select_mode()
 
     def select_category(self):
-        categories = self.database_manager.categories_manager.get_categories()
-        #categories = self.database_manager.create_categories(*constants.STARTERS_CATEGORIES)
+        categories = self.database_manager.categories_manager.create_categories(*constants.STARTERS_CATEGORIES)
         category = self.select_in_list("categories", categories)
 
-        while self.database_manager.categories_manager.count_products_in_category(category) > 30:
+        while len(self.database_manager.category_has_categories_manager.get_categories_in_category(category)) > 2:
             categories = self.database_manager.category_has_categories_manager.get_categories_in_category(category)
             category = self.select_in_list("categories", categories)
         return category
@@ -61,7 +61,7 @@ class SubstitutionFinder:
         category = self.select_category()
         product = self.select_product(category)
 
-        product_has_substitutes = self.product_has_substitutes_manager.get_product_has_substitutes(product)
+        product_has_substitutes = self.product_has_substitutes_manager.create_product_has_substitutes(product)
         substitutes = product_has_substitutes.substitutes
         substitute = self.select_in_list("substitutes", substitutes)
 
