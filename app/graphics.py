@@ -25,21 +25,12 @@ class Graphic(QtWidgets.QWidget):
 
     def setup_select_mode(self):
         self.setup_select_mode_ui()
-        #self.setup_select_mode_css()
         self.setup_select_mode_values()
         self.setup_select_mode_connections()
 
     def setup_select_mode_ui(self):
         self.cbb_select_mode = QtWidgets.QComboBox()
         self.layout.addWidget(self.cbb_select_mode)
-
-    def setup_select_mode_css(self):
-        self.setStyleSheet("""
-        background-color: rgb(240, 240, 240);
-        color: rgb(30, 30, 30);
-        border: none;
-        """)
-        #self.btn_inverser.setStyleSheet("background-color: red;")
 
     def setup_select_mode_values(self):
         self.cbb_select_mode.addItems(constants.SELECT_MODE_LIST)
@@ -49,16 +40,14 @@ class Graphic(QtWidgets.QWidget):
 
     def compute_cbb_select_mode(self):
         mode = self.cbb_select_mode.currentText()
+        self.delete_widget(self.cbb_select_mode)
         if mode == "Quel aliment souhaitez-vous remplacer ?":
-            self.layout.removeWidget(self.cbb_select_mode)
             self.setup_find_substitutes()
         elif mode == "Retrouver mes aliments substitués.":
-            self.layout.removeWidget(self.cbb_select_mode)
             self.setup_saved_substitutes()
 
     def setup_find_substitutes(self):
         self.setup_find_substitutes_ui()
-        self.setup_find_substitutes_css()
         self.setup_find_substitutes_values()
         self.setup_find_substitutes_connections()
 
@@ -76,9 +65,6 @@ class Graphic(QtWidgets.QWidget):
         self.layout.addWidget(self.lw_find_substitutes_substitutes)
         self.layout.addWidget(self.btn_find_substitutes_save_substitute)
         self.layout.addWidget(self.btn_find_substitutes_return_select_mode)
-
-    def setup_find_substitutes_css(self):
-        pass
 
     def setup_find_substitutes_values(self):
         self.setup_find_substitutes_starters_categories_values()
@@ -105,8 +91,8 @@ class Graphic(QtWidgets.QWidget):
     def setup_find_substitutes_substitutes_values(self):
         product_name = self.cbb_find_substitutes_products.currentText()
         self.product = self.database_manager.products_manager.create_product_by_name(product_name)
-        product_has_substitute = self.database_manager.product_has_substitutes_manager.create_product_has_substitutes(self.product)
-        for substitute in product_has_substitute.substitutes:
+        self.product.product_has_substitutes = self.database_manager.product_has_substitutes_manager.create_product_has_substitutes(self.product)
+        for substitute in self.product.product_has_substitutes.substitutes:
             self.lw_find_substitutes_substitutes.addItem(substitute.product_name)
 
     def setup_find_substitutes_connections(self):
@@ -132,24 +118,22 @@ class Graphic(QtWidgets.QWidget):
         self.setup_find_substitutes_substitutes_values()
 
     def compute_btn_find_substitutes_save_substitute(self):
-        substitute_names = self.lw_find_substitutes_substitutes.selectedIndexes()
-        print(self.product.product_name)
-        print(substitute_names)
+        index = self.lw_find_substitutes_substitutes.currentRow()
+        substitute = self.product.product_has_substitutes.substitutes[index]
         self.database_manager.product_has_substitutes_manager.save_substitute(self.product, substitute)
+        self.compute_btn_find_substitutes_return_select_mode
 
-    def compute_btn_find_substitutes_return_select_mode(self, mode):
-        self.layout.removeWidget(self.cbb_find_substitutes_starters_categories)
-        self.layout.removeWidget(self.cbb_find_substitutes_categories)
-        self.layout.removeWidget(self.cbb_find_substitutes_products)
-        self.layout.removeWidget(self.lw_find_substitutes_substitutes)
-        self.layout.removeWidget(self.btn_find_substitutes_save_substitute)
-        self.layout.removeWidget(self.btn_find_substitutes_return_select_mode)
-
+    def compute_btn_find_substitutes_return_select_mode(self):
+        self.delete_widget(self.cbb_find_substitutes_starters_categories)
+        self.delete_widget(self.cbb_find_substitutes_categories)
+        self.delete_widget(self.cbb_find_substitutes_products)
+        self.delete_widget(self.lw_find_substitutes_substitutes)
+        self.delete_widget(self.btn_find_substitutes_save_substitute)
+        self.delete_widget(self.btn_find_substitutes_return_select_mode)
         self.setup_select_mode()
 
     def setup_saved_substitutes(self):
         self.setup_saved_substitutes_ui()
-        self.setup_saved_substitutes_css()
         self.setup_saved_substitutes_values()
         self.setup_saved_substitutes_connections()
 
@@ -165,23 +149,19 @@ class Graphic(QtWidgets.QWidget):
         self.layout.addWidget(self.lw_saved_substitutes_substitutes)
         self.layout.addWidget(self.btn_saved_substitutes_delete_substitute)
         self.layout.addWidget(self.btn_saved_substitutes_return_select_mode)
-
-    def setup_saved_substitutes_css(self):
-        pass
     
     def setup_saved_substitutes_values(self):
         self.setup_saved_substitutes_categories_values()
 
     def setup_saved_substitutes_categories_values(self):
-        products = self.database_manager.product_has_substitutes_manager.get_products_with_substitutes()
-        for product in products:
-            for category in product.product_has_categories.categories:
-                self.cbb_saved_substitutes_categories.addItem(category.category_name)
+        categories = self.database_manager.categories_manager.get_categories_of_saved_products()
+        for category in categories:
+            self.cbb_saved_substitutes_categories.addItem(category.category_name)
 
     def setup_saved_substitutes_products_values(self):
         category_name = self.cbb_saved_substitutes_categories.currentText()
         category = self.database_manager.categories_manager.create_category(category_name)
-        products = self.database_manager.product_has_categories_manager.get_products_in_category(category)
+        products = self.database_manager.product_has_substitutes_manager.get_saved_products_in_category(category)
         for product in products:
             self.cbb_saved_substitutes_products.addItem(product.product_name)
 
@@ -199,24 +179,30 @@ class Graphic(QtWidgets.QWidget):
         self.btn_saved_substitutes_return_select_mode.clicked.connect(self.compute_btn_saved_substitutes_return_select_mode)
 
     def compute_cbb_saved_substitutes_categories(self):
-        self.cbb_saved_substitutes_categories.clear()
-        self.cbb_saved_substitutes_products.clear()
-        self.lw_saved_substitutes_substitutes.clear()
-        self.setup_saved_substitutes_categories_values()
-
-    def compute_cbb_saved_substitutes_products(self):
         self.cbb_saved_substitutes_products.clear()
         self.lw_saved_substitutes_substitutes.clear()
         self.setup_saved_substitutes_products_values()
 
+    def compute_cbb_saved_substitutes_products(self):
+        self.lw_saved_substitutes_substitutes.clear()
+        self.setup_saved_substitutes_substitutes_values()
+
     def compute_btn_saved_substitutes_delete_substitute(self):
-        pass
+        # product = 
+        # substitute = 
+        # self.database_manager.product_has_substitutes_manager.delete_substitute(product, substitute)
+        self.lw_saved_substitutes_substitutes.clear()
+        self.setup_saved_substitutes_substitutes_values()
 
     def compute_btn_saved_substitutes_return_select_mode(self):
-        self.layout.removeWidget(self.cbb_saved_substitutes_categories)
-        self.layout.removeWidget(self.cbb_saved_substitutes_products)
-        self.layout.removeWidget(self.lw_saved_substitutes_substitutes)
-        self.layout.removeWidget(self.btn_saved_substitutes_delete_substitute)
-        self.layout.removeWidget(self.btn_saved_substitutes_return_select_mode)
-
+        self.delete_widget(self.cbb_saved_substitutes_categories)
+        self.delete_widget(self.cbb_saved_substitutes_products)
+        self.delete_widget(self.lw_saved_substitutes_substitutes)
+        self.delete_widget(self.btn_saved_substitutes_delete_substitute)
+        self.delete_widget(self.btn_saved_substitutes_return_select_mode)
         self.setup_select_mode()
+
+    def delete_widget(self, widget):
+        self.layout.removeWidget(widget)
+        widget.deleteLater()
+        widget = None

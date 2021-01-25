@@ -53,8 +53,8 @@ class ProductsManager:
         data = (product_name,)
         self.database_manager.cursor.execute(query, data)
         product_infos_list = self.database_manager.cursor.fetchall()
-        if product_infos_list != None:
-            return self.create_product(*product_infos_list)
+        if product_infos_list:
+            return self.create_product(product_infos_list[0])
 
     def create_products(self, *products_infos_list):
         products = list()
