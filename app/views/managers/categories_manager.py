@@ -53,21 +53,9 @@ class CategoriesManager:
             category = CategoryModel(category_name=category_infos[1],
                                      category_id=category_infos[0])
         elif len(category_infos) == 1:
-            category = CategoryModel(category_infos[0])
+            category = CategoryModel(category_name=category_infos[0])
             category.category_id = self.get_category_id(category)
         else:
             category = CategoryModel(category_infos)
             category.category_id = self.get_category_id(category)
         return category
-
-    def get_categories_of_saved_products(self):
-        self.database_manager.cursor.execute("""
-            SELECT DISTINCT(c.category_id), category_name
-            FROM categories AS c
-            JOIN product_has_categories AS phc
-            ON c.category_id = phc.category_id
-            JOIN product_has_substitutes AS phs
-            ON phc.product_id = phs.product_id
-        """)
-        categories_infos = self.database_manager.cursor.fetchall()
-        return self.create_categories(*categories_infos)

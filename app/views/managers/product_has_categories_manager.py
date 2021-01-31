@@ -17,7 +17,20 @@ class ProductHasCategoriesManager:
         for category_has_categories in product_has_categories.categories_have_categories:
             category = category_has_categories.category
             category.category_id = self.database_manager.categories_manager.get_category_id(category)
-            self.add_to_table(product, category)
+            if not self.is_in_table(product, category):
+                self.add_to_table(product, category)
+
+    def is_in_table(self, product, category):
+        query = ("""
+            SELECT *
+            FROM product_has_categories
+            WHERE product_id = %s
+            AND category_id = %s
+        """)
+        data = (product.product_id, category.category_id)
+        self.database_manager.cursor.execute(query, data)
+        if self.database_manager.cursor.fetchall():
+            return True
 
     def add_to_table(self, product, category):
         statement = (
@@ -34,11 +47,9 @@ class ProductHasCategoriesManager:
             FROM products AS p
             JOIN product_has_categories AS phc
             ON p.product_id = phc.product_id
-            JOIN categories AS c
-            ON phc.category_id = c.category_id
-            WHERE category_name = %s
+            WHERE category_id = %s
         """)
-        data = (category.category_name,)
+        data = (category.category_id,)
         self.database_manager.cursor.execute(query, data)
         products_infos = self.database_manager.cursor.fetchall()
         return self.database_manager.products_manager.create_products(*products_infos)

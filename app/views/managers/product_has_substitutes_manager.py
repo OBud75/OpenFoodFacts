@@ -22,18 +22,45 @@ class ProductHasSubstitutesManager:
         self.database_manager.cursor.execute(statement, data)
         self.database_manager.mydb.commit()
 
-    def create_product_has_substitutes(self, product):
-        # SELECT *
-        # FROM products
-        #
-        #
-        # WHERE count(categories en commun entre le produit et la recherche) > 2
-                            #select category_id            select category_id
-        #
-        # nutrition_grades < %s
+    def is_already_saved(self, product, substitute):
         query = ("""
             SELECT *
-            FROM products where nutrition_grades = %s
+            FROM product_has_substitutes
+            WHERE product_id = %s
+            AND substitute_id = %s
+        """)
+        data = (product.product_id, substitute.product)
+        self.database_manager.cursor.execute(query, data)
+        if self.database_manager.cursor.fetchall():
+            return True
+
+    def delete_substitute(self, product, substitute):
+        statement = ("""
+            DELETE FROM product_has_substitutes
+            WHERE product_id = %s
+            AND substitute_id = %s
+        """)
+        data = (product.product_id, substitute.product_id)
+        self.database_manager.cursor.execute(statement, data)
+        self.database_manager.mydb.commit()
+
+    def get_substitutes_of_product(self, product):
+        """ product en entrée --> nutrition grade, categories
+            product_has_categories 
+        """
+        for category_h_c in product.product_has_categories.categories_have_categories:
+            print(1, category_h_c.category.category_name)
+            for category in category_h_c.childs:
+                print(2, category.category_name)
+                print(3, category.category_id)
+        quit()
+        query = ("""
+            SELECT *
+            FROM products as p
+            JOIN product_has_categories AS phc
+            ON p.product_id = phc.product_id
+            WHERE chc.category_id = 
+            WHERE nutrition_grades = %s
         """)
         data = (product.nutrition_grades,)
         self.database_manager.cursor.execute(query, data)
@@ -44,28 +71,27 @@ class ProductHasSubstitutesManager:
     def get_saved_substitutes_of_product(self, product):
         product.product_id = self.database_manager.products_manager.get_product_id(product)
         query = ("""
-            SELECT DISTINCT(product_id), code, product_name, ingredients_text, nutrition_grades, link
-            FROM products
-            WHERE product_id IN (SELECT substitute_id
-                                 FROM product_has_substitutes
-                                 WHERE product_id = %s)
+            SELECT p.product_id, code, product_name, ingredients_text, nutrition_grades, link
+            FROM product_has_substitutes AS phs
+            JOIN products AS p
+            ON p.product_id = phs.substitute_id
+            WHERE phs.product_id = %s
         """)
         data = (product.product_id,)
         self.database_manager.cursor.execute(query, data)
-        products_infos = self.database_manager.cursor.fetchall()
-        return self.database_manager.products_manager.create_products(*products_infos)
+        substitutes_infos = self.database_manager.cursor.fetchall()
+        substitutes = list()
+        for substitute_infos in substitutes_infos:
+            substitute = self.database_manager.products_manager.create_product(substitute_infos)
+            substitutes.append(substitute)
+        return ProductHasSubstitutesModel(product, *substitutes)
 
-    def get_saved_products_in_category(self, category):
-        query = ("""
-            SELECT DISTINCT(p.product_id), code, product_name, ingredients_text, nutrition_grades, link
-            FROM product_has_substitutes AS phs
-            JOIN product_has_categories AS phc
-            ON phs.product_id = phc.product_id
-            JOIN products AS p
+    def get_saved_products(self):
+        self.database_manager.cursor.execute("""
+            SELECT phs.product_id, code, product_name, ingredients_text, nutrition_grades, link
+            FROM products AS p
+            JOIN product_has_substitutes AS phs
             ON phs.product_id = p.product_id
-            WHERE category_id = %s
         """)
-        data = (category.category_id,)
-        self.database_manager.cursor.execute(query, data)
         products_infos = self.database_manager.cursor.fetchall()
         return self.database_manager.products_manager.create_products(*products_infos)

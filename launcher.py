@@ -29,8 +29,6 @@ def initializations():
         Object: Grafical user interface
     """
     database_manager = DataBaseManager(mode=check_argv())
-    #substitution_finder = SubstitutionFinder(database_manager)
-    #graphic = Graphic(substitution_finder)
     graphic = Graphic(database_manager)
     return graphic
 
@@ -39,7 +37,6 @@ def main():
     graphic = initializations()
     graphic.show()
     exit(qt_widget_app.exec_())
-    #graphic.main_loop()
 
 if __name__ == "__main__":
     main()
