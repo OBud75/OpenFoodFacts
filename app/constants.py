@@ -9,6 +9,7 @@ import os
 
 # MySQL configuration
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+
 MYSQL_CONFIG = {
             "user": "root",
             "password": MYSQL_PASSWORD,

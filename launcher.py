@@ -12,7 +12,6 @@ from PySide6 import QtWidgets
 
 # Local application imports
 from app.views.database_manager import DataBaseManager
-from app.substitution_finder import SubstitutionFinder
 from app.graphics import Graphic
 
 def check_argv():
