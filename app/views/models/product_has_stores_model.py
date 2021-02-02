@@ -8,6 +8,6 @@
 from app.views.models.store_model import StoreModel
 
 class ProductHasStoresModel:
-    def __init__(self, product, *product_stores):
+    def __init__(self, product, *stores_names):
         self.product = product
-        self.stores = [StoreModel(store_name) for store_name in product_stores]
+        self.stores = [StoreModel(store_name) for store_name in stores_names]

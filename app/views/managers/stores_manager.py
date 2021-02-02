@@ -13,8 +13,8 @@ class StoresManager:
     def __init__(self, database_manager):
         self.database_manager = database_manager
 
-    def manage(self, *product_has_stores):
-        for store in product_has_stores:
+    def manage(self, *stores):
+        for store in stores:
             if store.store_name and self.get_store_id(store) == None:
                 self.add_to_table(store)
 

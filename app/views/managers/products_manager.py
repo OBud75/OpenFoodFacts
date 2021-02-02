@@ -68,5 +68,5 @@ class ProductsManager:
                         ["product_id", "code", "product_name", "ingredients_text", "nutrition_grades", "link"])}
         product = ProductModel(**product_infos)
         product.product_has_categories = self.database_manager.product_has_categories_manager.create_product_has_categories(product)
-        #product.product_has_stores = self.database_manager.product_has_stores_manager.get_product_has_stores(product)
+        product.product_has_stores = self.database_manager.product_has_stores_manager.create_product_has_stores(product)
         return product

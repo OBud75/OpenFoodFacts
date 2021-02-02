@@ -12,7 +12,7 @@ from app.views.models.category_model import CategoryModel
 
 class ProductModel:
     def __init__(self, **product_infos):
-        self.product_id = product_infos.get("product_id", None)
+        self.product_id = product_infos.get("product_id")
         self.code = int(product_infos.get("code"))
         self.product_name = product_infos.get("product_name")
         self.ingredients_text = product_infos.get("ingredients_text")
@@ -23,7 +23,11 @@ class ProductModel:
         if categories_names:
             self.product_has_categories = self.get_product_has_categories(categories_names)
 
-        self.product_has_stores = ProductHasStoresModel(self, product_infos.get("store_name", "None"))
+        stores_names = product_infos.get("stores_tags")
+        if stores_names:
+            self.product_has_stores = ProductHasStoresModel(self, *stores_names)
+        else :
+            self.product_has_stores = None
 
     def get_product_has_categories(self, categories_names):
             categories_have_categories = list()

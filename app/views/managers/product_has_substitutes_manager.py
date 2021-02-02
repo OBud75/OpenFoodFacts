@@ -45,24 +45,19 @@ class ProductHasSubstitutesManager:
         self.database_manager.mydb.commit()
 
     def get_substitutes_of_product(self, product):
-        """ product en entrée --> nutrition grade, categories
-            product_has_categories 
-        """
-        for category_h_c in product.product_has_categories.categories_have_categories:
-            print(1, category_h_c.category.category_name)
-            for category in category_h_c.childs:
-                print(2, category.category_name)
-                print(3, category.category_id)
-        quit()
         query = ("""
             SELECT *
             FROM products as p
             JOIN product_has_categories AS phc
             ON p.product_id = phc.product_id
-            WHERE chc.category_id = 
-            WHERE nutrition_grades = %s
+            WHERE nutrition_grades < %s
+            AND phc.category_id IN (SELECT child_id
+                                    FROM category_has_categories AS chc
+                                    JOIN product_has_categories AS phc
+                                    ON chc.category_id = phc.category_id
+                                    WHERE product_id = %s)
         """)
-        data = (product.nutrition_grades,)
+        data = (product.nutrition_grades, product.product_id)
         self.database_manager.cursor.execute(query, data)
         substitutes_infos = self.database_manager.cursor.fetchall()
         substitutes = self.database_manager.products_manager.create_products(*substitutes_infos)

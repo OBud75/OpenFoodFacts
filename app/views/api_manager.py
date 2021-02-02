@@ -26,7 +26,7 @@ class ApiManager:
                 if all(product.get(key) for key in ["code", "product_name", "nutrition_grades", "categories_hierarchy"]):
                     product_infos = {key: product.get(key)
                                      for key in ["code", "product_name", "ingredients_text",
-                                     "nutrition_grades", "categories_hierarchy", "store_name"]}
+                                     "nutrition_grades", "categories_hierarchy", "stores_tags"]}
                     product_infos["categories_hierarchy"] = [category_name[3:].capitalize().replace("-", " ")
                                                              for category_name in product_infos["categories_hierarchy"]
                                                              if category_name.startswith("fr:")]

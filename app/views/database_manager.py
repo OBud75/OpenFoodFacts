@@ -203,5 +203,6 @@ class DataBaseManager:
 
             self.product_has_categories_manager.manage(product.product_has_categories)
             self.category_has_categories_manager.manage(*product.product_has_categories.categories_have_categories)
-            self.stores_manager.manage(*product.product_has_stores.stores)
-            self.product_has_stores_manager.manage(product.product_has_stores)
+            if product.product_has_stores != None:
+                self.stores_manager.manage(*product.product_has_stores.stores)
+                self.product_has_stores_manager.manage(product.product_has_stores)

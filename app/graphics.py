@@ -23,7 +23,6 @@ from app import constants
 # Third party import
 from PySide6 import QtWidgets
 
-# Local application imports
 
 class Graphic(QtWidgets.QWidget):
     def __init__(self, database_manager):
