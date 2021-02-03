@@ -5,7 +5,7 @@
 """
 
 # Local application imports
-from app.views.models.store_model import StoreModel
+from database.models.store_model import StoreModel
 
 class StoresManager:
     """Class representing a single store

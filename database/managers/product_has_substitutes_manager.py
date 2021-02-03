@@ -4,7 +4,7 @@
 """
 """
 
-from app.views.models.product_has_substitutes_model import ProductHasSubstitutesModel
+from database.models.product_has_substitutes_model import ProductHasSubstitutesModel
 
 class ProductHasSubstitutesManager:
     def __init__(self, database_manager):
@@ -29,7 +29,7 @@ class ProductHasSubstitutesManager:
             WHERE product_id = %s
             AND substitute_id = %s
         """)
-        data = (product.product_id, substitute.product)
+        data = (product.product_id, substitute.product_id)
         self.database_manager.cursor.execute(query, data)
         if self.database_manager.cursor.fetchall():
             return True

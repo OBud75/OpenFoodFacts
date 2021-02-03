@@ -4,9 +4,6 @@
 """
 """
 
-# Local application imports
-from app.views.models.category_model import CategoryModel
-
 class CategoryHasCategoriesModel:
     def __init__(self, category, *categories):
         self.category = category

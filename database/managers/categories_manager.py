@@ -5,7 +5,7 @@
 """
 
 # Local application imports
-from app.views.models.category_model import CategoryModel
+from database.models.category_model import CategoryModel
 
 class CategoriesManager:
     """Link between categories and database

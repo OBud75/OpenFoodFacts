@@ -10,15 +10,15 @@ Use of MySQL (cursors, connector...)
 import mysql.connector
 
 # Local application imports
-from app import constants
-from app.views.api_manager import ApiManager
-from app.views.managers.products_manager import ProductsManager
-from app.views.managers.categories_manager import CategoriesManager
-from app.views.managers.stores_manager import StoresManager
-from app.views.managers.product_has_categories_manager import ProductHasCategoriesManager
-from app.views.managers.category_has_categories_manager import CategoryHasCategoriesManager
-from app.views.managers.product_has_stores_manager import ProductHasStoresManager
-from app.views.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
+from database import constants
+from database.api_manager import ApiManager
+from database.managers.products_manager import ProductsManager
+from database.managers.categories_manager import CategoriesManager
+from database.managers.stores_manager import StoresManager
+from database.managers.product_has_categories_manager import ProductHasCategoriesManager
+from database.managers.category_has_categories_manager import CategoryHasCategoriesManager
+from database.managers.product_has_stores_manager import ProductHasStoresManager
+from database.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
 
 class DataBaseManager:
     """In this class we implement the SQL DataBase structure

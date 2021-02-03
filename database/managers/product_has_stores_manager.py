@@ -4,7 +4,7 @@
 """
 """
 
-from app.views.models.product_has_stores_model import ProductHasStoresModel
+from database.models.product_has_stores_model import ProductHasStoresModel
 
 
 class ProductHasStoresManager:

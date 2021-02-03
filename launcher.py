@@ -11,7 +11,7 @@ from sys import exit
 from PySide6 import QtWidgets
 
 # Local application imports
-from app.views.database_manager import DataBaseManager
+from database.database_manager import DataBaseManager
 from app.graphics import Graphic
 
 def check_argv():

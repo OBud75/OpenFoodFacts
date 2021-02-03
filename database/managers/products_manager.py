@@ -5,7 +5,7 @@
 """
 
 # Local application imports
-from app.views.models.product_model import ProductModel
+from database.models.product_model import ProductModel
 
 class ProductsManager:
     def __init__(self, database_manager):

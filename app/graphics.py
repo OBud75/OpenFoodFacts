@@ -23,7 +23,6 @@ from app import constants
 # Third party import
 from PySide6 import QtWidgets
 
-
 class Graphic(QtWidgets.QWidget):
     def __init__(self, database_manager):
         self.database_manager = database_manager
@@ -32,7 +31,7 @@ class Graphic(QtWidgets.QWidget):
         self.setup_select_mode()
 
     def window_parameters(self):
-        self.setWindowTitle(constants.DATABASE_NAME)
+        self.setWindowTitle(constants.APP_NAME)
         self.layout = QtWidgets.QVBoxLayout(self)
 
     def setup_select_mode(self):
@@ -134,7 +133,7 @@ class Graphic(QtWidgets.QWidget):
         substitute = self.product.product_has_substitutes.substitutes[index]
         if not self.database_manager.product_has_substitutes_manager.is_already_saved(self.product, substitute):
             self.database_manager.product_has_substitutes_manager.save_substitute(self.product, substitute)
-        self.compute_btn_find_substitutes_return_select_mode
+        self.compute_btn_find_substitutes_return_select_mode()
 
     def compute_btn_find_substitutes_return_select_mode(self):
         self.delete_widget(self.cbb_find_substitutes_starters_categories)
@@ -191,7 +190,7 @@ class Graphic(QtWidgets.QWidget):
         if index != -1:
             substitute = self.product.product_has_substitutes.substitutes[index]
             self.database_manager.product_has_substitutes_manager.delete_substitute(self.product, substitute)
-        self.compute_btn_saved_substitutes_return_select_mode
+        self.compute_btn_saved_substitutes_return_select_mode()
 
     def compute_btn_saved_substitutes_return_select_mode(self):
         self.delete_widget(self.cbb_saved_substitutes_products)

@@ -5,7 +5,7 @@
 """
 
 # 
-from app.views.models.category_has_categories_model import CategoryHasCategoriesModel
+from database.models.category_has_categories_model import CategoryHasCategoriesModel
 
 class CategoryHasCategoriesManager():
     def __init__(self, database_manager):

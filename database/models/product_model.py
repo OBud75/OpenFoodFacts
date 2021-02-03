@@ -5,10 +5,10 @@
 """
 
 # Local application imports
-from app.views.models.product_has_categories_model import ProductHasCategoriesModel
-from app.views.models.category_has_categories_model import CategoryHasCategoriesModel
-from app.views.models.product_has_stores_model import ProductHasStoresModel
-from app.views.models.category_model import CategoryModel
+from database.models.product_has_categories_model import ProductHasCategoriesModel
+from database.models.category_has_categories_model import CategoryHasCategoriesModel
+from database.models.product_has_stores_model import ProductHasStoresModel
+from database.models.category_model import CategoryModel
 
 class ProductModel:
     def __init__(self, **product_infos):
