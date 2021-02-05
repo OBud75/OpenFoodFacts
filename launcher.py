@@ -7,12 +7,9 @@
 from sys import argv
 from sys import exit
 
-# Third party import
-from PySide6 import QtWidgets
-
 # Local application imports
 from database.database_manager import DataBaseManager
-from app.graphics import Graphic
+from app.application_manager import ApplicationManager
 
 def check_argv():
     if len(argv) == 2 and argv[1] == "database":
@@ -21,21 +18,10 @@ def check_argv():
         return "normal"
     exit("Create database: python launcher.py database\nUsage: python launcher.py")
 
-def initializations():
-    """Initializating instances
-
-    Returns:
-        Object: Grafical user interface
-    """
-    database_manager = DataBaseManager(mode=check_argv())
-    graphic = Graphic(database_manager)
-    return graphic
-
 def main():
-    qt_widget_app = QtWidgets.QApplication()
-    graphic = initializations()
-    graphic.show()
-    exit(qt_widget_app.exec_())
+    database_manager = DataBaseManager(mode=check_argv())
+    application_manager = ApplicationManager(database_manager)
+    application_manager.run()
 
 if __name__ == "__main__":
     main()
