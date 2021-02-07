@@ -1,9 +1,8 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""In this file we implement the database manager
-Creation of the database and the tables
-Use of MySQL (cursors, connector...)
+"""Implémentation du gestionnaire principal de la base de données
+Nous utilisons le module mysql.connector pour les requètes SQL
 """
 
 # Third party import
@@ -21,9 +20,18 @@ from database.managers.product_has_stores_manager import ProductHasStoresManager
 from database.managers.product_has_substitutes_manager import ProductHasSubstitutesManager
 
 class DataBaseManager:
-    """In this class we implement the SQL DataBase structure
+    """Objet représentant le gestionnaire de la base de données
+    Nous implémentons les requètes nécessaires à:
+    La création des tables
+    Les relations entre elles
+    La connection à la base de données
     """
     def __init__(self, mode):
+        """Initialisation de l'instance du gestionnaire de base ded données
+
+        Args:
+            mode (Str): Création de la database ou utilisation normale
+        """
         # Creation and/or connexion to the DataBase
         self.mydb = mysql.connector.connect(**constants.MYSQL_CONFIG)
         self.cursor = self.mydb.cursor(buffered=True)
@@ -49,24 +57,35 @@ class DataBaseManager:
             self.mydb.commit()
 
     def create_data_base(self, name=constants.DATABASE_NAME):
+        """Création de la base de données sql si elle n'existe pas déja
+        Nous définissons l'encodage en utf-8 pour assurer la compatibilité
+
+        Args:
+            name (Str): Nom de la base de données
+        """
         self.cursor.execute(f"""
         CREATE DATABASE IF NOT EXISTS {name}
         CHARACTER SET 'utf8';
         """)
 
     def use_database(self, name=constants.DATABASE_NAME):
+        """Connection à la base de données
+
+        Args:
+            name (Str): Nom de la base de données
+        """
         self.cursor.execute(f"""
         USE {name};
         """)
 
     def create_tables(self):
-        """Create all the tables needed in the database
+        """Créé toutes les tables nécéssaires au programme
         products, categories, stores
         product_has_categories, category_has_categories,
         product_has_stores, product_has_substitutes
         """
 
-        # Create products table
+        # Table contenant les produits
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -79,7 +98,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create categories table
+        # # Table contenant les catégories
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -88,7 +107,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create stores table
+        # # Table contenant les magasins
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS stores (
             store_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -97,7 +116,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create table product_has_categories
+        # Table contenant la liaison entre produits et catégories
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS product_has_categories (
             product_id INT UNSIGNED,
@@ -106,7 +125,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create table category_has_categories
+        # Table contenant la liaison entre les catégories
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS category_has_categories (
             category_id INT UNSIGNED,
@@ -115,7 +134,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create table product_has_stores
+        # Table contenant la liaison entre les produits et les magasins
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS product_has_stores (
             product_id INT UNSIGNED,
@@ -124,7 +143,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # Create table product_has_substitutes
+        # Table contenant les substituts enregistrés
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS product_has_substitutes (
             product_id INT UNSIGNED,
@@ -134,10 +153,10 @@ class DataBaseManager:
         """)
 
     def create_relations(self):
-        """Create the relations between tables
+        """Crée les relations entre les tables
         """
 
-        # For table product_has_categories
+        # Table product_has_categories
         self.cursor.execute("""
         ALTER TABLE product_has_categories
             ADD CONSTRAINT fk_product_has_categories_category_id
@@ -150,7 +169,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # For table category_has_categories
+        # Table category_has_categories
         self.cursor.execute("""
         ALTER TABLE category_has_categories
             ADD CONSTRAINT fk_category_has_categories_category_id
@@ -163,7 +182,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # For table product_has_store
+        # Table product_has_store
         self.cursor.execute("""
         ALTER TABLE product_has_stores
             ADD CONSTRAINT fk_product_has_stores_store_id
@@ -176,7 +195,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # For table product_has_substitutes
+        # Table product_has_substitutes
         self.cursor.execute("""
         ALTER TABLE product_has_substitutes
             ADD CONSTRAINT fk_product_has_substitute_product_id
@@ -190,9 +209,13 @@ class DataBaseManager:
         """)
 
     def fill_tables(self):
+        """Injections des informations dans les différentes tables de données
+        """
+        # Produits
         for product_infos in self.api_manager.get_products_list():
             product = self.products_manager.manage(**product_infos)
 
+        # Catégories
             categories = list()
             for category_has_categories in product.product_has_categories.categories_have_categories:
                 categories.append(category_has_categories.category)
@@ -201,8 +224,14 @@ class DataBaseManager:
                         categories.append(child)
             self.categories_manager.manage(*categories)
 
+        # Relations entre produits et catégories
             self.product_has_categories_manager.manage(product.product_has_categories)
-            self.category_has_categories_manager.manage(*product.product_has_categories.categories_have_categories)
-            if product.product_has_stores != None:
+
+        # Relations entre les catégories
+            self.category_has_categories_manager.manage(
+                *product.product_has_categories.categories_have_categories)
+
+        # Magasins et relations entre les produits et les magasins
+            if product.product_has_stores is not None:
                 self.stores_manager.manage(*product.product_has_stores.stores)
                 self.product_has_stores_manager.manage(product.product_has_stores)
