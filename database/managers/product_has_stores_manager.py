@@ -63,7 +63,7 @@ class ProductHasStoresManager:
             ProductHasStoresModel: Instance de ProductHasStores
         """
         query = ("""
-            SELECT *
+            SELECT DISTINCT(store_name)
             FROM stores AS s
             JOIN product_has_stores AS phs
             ON s.store_id = phs.store_id
@@ -71,7 +71,8 @@ class ProductHasStoresManager:
         """)
         data = (product.product_id,)
         self.database_manager.cursor.execute(query, data)
-        stores_infos = self.database_manager.cursor.fetchall()
-        if stores_infos:
-            return ProductHasStoresModel(product, *stores_infos)
+        stores_names = self.database_manager.cursor.fetchall()
+        stores_names = [store_name[0] for store_name in stores_names]
+        if stores_names:
+            return ProductHasStoresModel(product, *stores_names)
         return None

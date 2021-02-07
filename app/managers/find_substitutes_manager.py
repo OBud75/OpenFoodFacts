@@ -74,9 +74,21 @@ class FindSubstitutesManager:
         phs = self.phs_manager.get_substitutes_of_product(self.product)
         self.product.product_has_substitutes = phs
 
-        # Affichage dans la fenètre graphique
         for substitute in self.product.product_has_substitutes.substitutes:
-            self.view.lw_substitutes.addItem(substitute.product_name)
+            # Liste des magasins
+            stores = list()
+            if substitute.product_has_stores is not None:
+                for store in substitute.product_has_stores.stores:
+                    stores.append(store.store_name)
+            if len(stores) == 0:
+                stores = "Aucun magasin trouvé"
+
+            # Affichage des informations du substituts
+            self.view.lw_substitutes.addItem(
+                f"{substitute.product_name}\n\
+                \t{substitute.ingredients_text}\n\
+                \t{substitute.link}\n\
+                \t{stores}\n")
 
     def compute_cbb_starters_categories(self):
         """Actions à effectuer lors de la sélection d'une catégorie de départ

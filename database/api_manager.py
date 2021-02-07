@@ -50,6 +50,12 @@ class ApiManager:
                     product_infos = {key: product.get(key)
                                      for key in constants.API_INFORMATIONS}
 
+                    # Uniformisation des noms des magasins
+                    product_infos["stores_tags"] = [
+                            store_name.capitalize().replace("-", " ")
+                            for store_name in product_infos["stores_tags"]
+                        ]
+
                     # Tri des catégories et uniformisation de leurs noms
                     product_infos["categories_hierarchy"] = [
                         category_name[3:].capitalize().replace("-", " ")
