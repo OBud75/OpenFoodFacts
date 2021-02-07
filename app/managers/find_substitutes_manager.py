@@ -23,7 +23,7 @@ class FindSubstitutesManager:
         self.application_manager = application_manager
         self.database_manager = self.application_manager.database_manager
         self.c_manager = self.database_manager.categories_manager
-        self.p_manager = self.database_manager.product_manager
+        self.p_manager = self.database_manager.products_manager
         self.phs_manager = self.database_manager.product_has_substitutes_manager
         self.phc_manager = self.database_manager.product_has_categories_manager
         self.chc_manager = self.database_manager.category_has_categories_manager

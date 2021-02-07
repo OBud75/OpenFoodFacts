@@ -21,7 +21,7 @@ def check_argv():
     """Nous récupérons un argument supplémentaire grâce au module argv
 
     Returns:
-        Str: Mode create pour le premier lancement ou normal pour les suivants
+        Str: Mode normal ou create pour la création de la base de données
     """
     if len(argv) == 2 and argv[1] == "database":
         return "create"
@@ -35,9 +35,15 @@ def main():
     Une pour gérer la base de données
     La seconde pour gérer l'application
     """
-    database_manager = DataBaseManager(mode=check_argv())
+    mode = check_argv()
+    database_manager = DataBaseManager(mode)
+
+    if mode == "create":
+        exit("Création de la base de données terminée avec succès")
+
     application_manager = ApplicationManager(database_manager)
     application_manager.run()
+
 
 if __name__ == "__main__":
     main()

@@ -31,7 +31,7 @@ class ProductHasCategoriesManager:
 
         for category_has_categories in product_has_categories.categories_have_categories:
             category = category_has_categories.category
-            category_id = self.database_manager.categories_manager.get_category_id(category)
+            category_id = self.database_manager.categories_manager.get_id(category)
             category.category_id = category_id
             if not self.is_in_table(product, category):
                 self.add_to_table(product, category)

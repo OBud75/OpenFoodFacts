@@ -53,6 +53,8 @@ class DataBaseManager:
             self.create_tables()
             self.create_relations()
             self.api_manager = ApiManager()
+
+            print("Création de la base de données en cours...")
             self.fill_tables()
             self.mydb.commit()
 
@@ -98,7 +100,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # # Table contenant les catégories
+        # Table contenant les catégories
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             category_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -107,7 +109,7 @@ class DataBaseManager:
         ENGINE=INNODB;
         """)
 
-        # # Table contenant les magasins
+        # Table contenant les magasins
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS stores (
             store_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
