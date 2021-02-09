@@ -1,29 +1,29 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du gestionnaire de la table "product_has_stores"
+"""Implementation of the manager of the "product_has_stores" table
 """
 
 from database.models.product_has_stores_model import ProductHasStoresModel
 
 class ProductHasStoresManager:
-    """Gestionnaire de la table "product_has_stores"
-    Cette table contient les informations des relations entre produits et magasins
+    """Manager of the "product_has_stores" table
+    This table contains information on the relationships between products and stores
     """
     def __init__(self, database_manager):
-        """Initialisation de l'instance du gestionnaire de la table "product_has_stores"
+        """Initialization of the manager instance of the "product_has_stores" table
 
         Args:
-            database_manager (DatabaseManager): Instance du gestionnaire de la database
+            database_manager (DatabaseManager): Instance of the database manager
         """
         self.database_manager = database_manager
 
     def manage(self, product_has_stores):
-        """Méthode appelée depuis le gestionnaire de la database
-        Vérifications de la table "product_has_stores" pour injections
+        """Method called from the database manager
+        Checks of the "product_has_stores" table for injections
 
         Args:
-            product_has_stores (ProductHasStoresModel): Instance de ProductHasStoresModel
+            product_has_stores (ProductHasStoresModel): ProductHasStoresModel instance
         """
         product = product_has_stores.product
         stores = product_has_stores.stores
@@ -35,33 +35,36 @@ class ProductHasStoresManager:
                 self.add_to_table(product, store)
 
     def add_to_table(self, product, store):
-        """Injection des informations des relations entre produits et magasins
-        dans la table "product_has_stores"
+        """Injection of information on relations between
+        products and stores in the "product_has_stores" table
 
         Args:
-            product (ProductModel): Instance de ProductModel
-            store (StoreModel): Instance de StoreModel
+            product (ProductModel): ProductModel instance
+            store (StoreModel): StoreModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         statement = (
             "INSERT INTO product_has_stores"
             "(product_id, store_id)"
             "VALUES (%s, %s)"
         )
         data = (product.product_id, store.store_id)
-        self.database_manager.cursor.execute(statement, data)
+        cursor.execute(statement, data)
+        cursor.close()
 
     def create(self, product):
-        """Créé une instance de ProductHasStoresModel
-        Les arguments sont:
-        L'instance de ProductModel
-        Le noms des magasins liés au produit
+        """Creates an instance of ProductHasStoresModel
+        The arguments are:
+        The ProductModel instance
+        The names of the stores linked to the product
 
         Args:
-            product (ProductModel): Instance de ProductModel
+            product (ProductModel): ProductModel instance
 
         Returns:
-            ProductHasStoresModel: Instance de ProductHasStores
+            ProductHasStoresModel: ProductHasStoresModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT DISTINCT(store_name)
             FROM stores AS s
@@ -70,8 +73,9 @@ class ProductHasStoresManager:
             WHERE product_id = %s
         """)
         data = (product.product_id,)
-        self.database_manager.cursor.execute(query, data)
-        stores_names = self.database_manager.cursor.fetchall()
+        cursor.execute(query, data)
+        stores_names = cursor.fetchall()
+        cursor.close()
         stores_names = [store_name[0] for store_name in stores_names]
         if stores_names:
             return ProductHasStoresModel(product, *stores_names)

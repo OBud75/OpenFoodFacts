@@ -1,21 +1,22 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du gestionnaire principal de l'application
-L'utilisateur a les choix suivants :
-1 - Quel aliment souhaitez-vous remplacer ?
-2 - Retrouver mes aliments substitués.
+"""Main application manager implementation
 
-L'utilisateur sélectionne 1:
-Le programme pose les questions suivantes à l'utilisateur
-Sélectionnez la catégorie
-Sélectionnez l'aliment
+The user has the following choices:
+1 - Which product would you like to replace?
+2 - Find my substitute foods.
 
-Le programme propose un substitut, sa description,
-un magasin où l'acheter (le cas échéant)
-et un lien vers la page d'Open Food Facts concernant cet aliment.
+The user selects 1:
+The program asks the following questions to the user
+Select category
+Select the food
 
-L'utilisateur a alors la possibilité d'enregistrer le résultat dans la base de données.
+The program offers a substitute, its description,
+a store to buy it (if applicable)
+and a link to the Open Food Facts page for that food.
+
+The user then has the option of saving the result in the database.
 """
 
 # Standard library import
@@ -34,57 +35,59 @@ from app.managers.saved_substitutes_manager import SavedSubstitutesManager
 from app.views.saved_substitutes_view import SavedSubstitutesView
 
 class ApplicationManager:
-    """Gestionnaire de l'application côté utilisateur
+    """User-side application manager
     """
     def __init__(self, database_manager):
-        """Initialisation de l'application
-        Instanciation de la fenètre graphique
-        et de ses différentes parties
+        """Application initialization
+        Instantiating the graphics window
+        and its different parts
 
         Args:
-            database_manager (DatabaseManager): Gestionnaire de la base de données
+            database_manager (DatabaseManager): Database manager instance
         """
         self.qt_widget_app = QtWidgets.QApplication()
         self.database_manager = database_manager
         self.window = Window()
 
-        # Menu
+        # Select mode
         self.select_mode_view = SelectModeView(self.window)
-        self.select_mode_manager = SelectModeManager(self, self.select_mode_view)
+        self.select_mode_manager = SelectModeManager(self.database_manager,
+                                                     self.select_mode_view)
 
-        # Remplacer un aliment
+        # Find substitutes
         self.find_substitutes_view = FindSubstitutesView(self.window)
-        self.find_substitutes_manager = FindSubstitutesManager(self, self.find_substitutes_view)
+        self.find_substitutes_manager = FindSubstitutesManager(self.database_manager,
+                                                               self.find_substitutes_view)
 
-        # Retrouver mes aliments substitués
+        # Saved substitutes
         self.saved_substitutes_view = SavedSubstitutesView(self.window)
-        self.saved_substitutes_manager = SavedSubstitutesManager(self, self.saved_substitutes_view)
+        self.saved_substitutes_manager = SavedSubstitutesManager(self.database_manager,
+                                                                 self.saved_substitutes_view)
 
-        # Affiche la fenètre
         self.window.show()
 
     def run(self):
-        """Méthode apellée par le launcher pour démarrer l'application
+        """Method called by the launcher to start the application
         """
         self.select_mode()
         exit(self.qt_widget_app.exec_())
 
     def select_mode(self):
-        """Selection du mode
+        """Mode selection
         """
         self.select_mode_view.setup_select_mode()
         self.select_mode_manager.setup_modes_values()
         self.select_mode_manager.connections()
 
     def find_substitutes(self):
-        """L'utilisateur sélectionne "Quel aliment souhaitez-vous remplacer ?"
+        """The user selects "Which product would you like to replace?"
         """
         self.find_substitutes_view.setup_find_substitutes()
         self.find_substitutes_manager.setup_starters_categories_values()
         self.find_substitutes_manager.connections()
 
     def saved_substitutes(self):
-        """L'utilisateur sélectionne "Retrouver mes aliments substitués."
+        """The user selects "Find my substituted foods."
         """
         self.saved_substitutes_view.setup_saved_substitutes()
         self.saved_substitutes_manager.setup_products_values()

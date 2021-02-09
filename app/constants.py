@@ -1,22 +1,22 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Constantes liées à l'application
+"""Constants related to the application
 """
 
-# Fenètre graphique
+# Graphic window
 APP_NAME = "OpenFoodFacts"
 
 WINDOW_HEIGHT = 800
 WINDOW_WIDTH = 600
 
-# Menu
+# Select mode
 SELECT_MODE_LIST = [
     "Quel aliment souhaitez-vous remplacer ?",
     "Retrouver mes aliments substitués."
     ]
 
-# Catégories proposées
+# Find substitutes
 STARTERS_CATEGORIES = [
     "Produits labellisés",
     "Bio",

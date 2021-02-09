@@ -1,7 +1,7 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du gestionnaire de la table "products"
+"""Implementation of the "products" table manager
 """
 
 # Local application imports
@@ -9,20 +9,23 @@ from database import constants
 from database.models.product_model import ProductModel
 
 class ProductsManager:
-    """Gestionnaire de la table "products"
-    Cette table contient les informations relatives aux produits
+    """Manager of the "products" table
+    This table contains information about the products
     """
     def __init__(self, database_manager):
-        """Initialisation de l'instance du gestionnaire de la table "products"
+        """Initialization of the manager instance of the "products" table
 
         Args:
-            database_manager (DatabaseManager): Gestionnaire de la database
+            database_manager (DatabaseManager): Database manager
         """
         self.database_manager = database_manager
 
     def manage(self, **product_infos):
-        """Méthode appelée depuis le gestionnaire de la database
-        Nous ajoutons les produits à la base de données s'il n'y sont pas déja
+        """Method called from the database manager
+        We add the products to the database if they are not already there
+
+        Args:
+            product_infos (Dict): Product information in the API
         """
         product = ProductModel(**product_infos)
         if self.get_product_id(product) is None:
@@ -30,26 +33,32 @@ class ProductsManager:
         return product
 
     def get_product_id(self, product):
-        """Récupération de L'ID d'un produit grâce à son nom
+        """Retrieving the ID of a product from its name
+
+        Returns:
+            Int: Product ID in the database
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT product_id
             FROM products
             WHERE product_name = %s
         """)
         data = (product.product_name,)
-        self.database_manager.cursor.execute(query, data)
-        result = self.database_manager.cursor.fetchone()
+        cursor.execute(query, data)
+        result = cursor.fetchone()
+        cursor.close()
         if result is not None:
             return result[0]
         return None
 
     def add_to_table(self, product):
-        """Injection d'un produit dans la table "products"
+        """Injecting a product into the "products" table
 
         Args:
-            product (Product): Instance de ProductModel
+            product (Product): ProductModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         statement = (
             "INSERT IGNORE INTO products"
             "(code, product_name, ingredients_text, nutrition_grades, link)"
@@ -62,33 +71,36 @@ class ProductsManager:
             product.nutrition_grades,
             product.link
         )
-        self.database_manager.cursor.execute(statement, data)
+        cursor.execute(statement, data)
+        cursor.close()
 
     def create_product_by_name(self, product_name):
-        """Créé une instance de l'objet ProductModel
-        Produit dont on ne connait que le nom
+        """Creates an instance of the ProductModel object
+        Product of which we only know the name
 
         Args:
-            product_name (Str): Nom du produit
+            product_name (Str): Product name
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT product_id, code, product_name, ingredients_text, nutrition_grades, link
             FROM products
             WHERE product_name = %s
         """)
         data = (product_name,)
-        self.database_manager.cursor.execute(query, data)
-        product_infos_list = self.database_manager.cursor.fetchall()
+        cursor.execute(query, data)
+        product_infos_list = cursor.fetchall()
+        cursor.close()
         if product_infos_list:
             return self.create_product(product_infos_list[0])
         return None
 
     def create_products(self, *products_infos_list):
-        """Créé des instances de l'objet ProductModel
-        Produits dont on à toutes les informations
+        """Creates instances of the ProductModel object
+        Products for which we have all the information
 
         Args:
-            products_infos_list (Liste de dictionnaires): Informations des produits
+            products_infos_list (Liste de dictionnaires): Products informations
         """
         products = list()
         for product_infos_list in products_infos_list:
@@ -97,11 +109,11 @@ class ProductsManager:
         return products
 
     def create_product(self, product_infos_list):
-        """Créé une instance de l'objet ProductModel
-        Produit dont on à toutes les informations
+        """Creates an instance of the ProductModel object
+        Product for which we have all the information
 
         Args:
-            product_infos_list (Dict): Informations des produits
+            product_infos_list (Dict): Product informations
         """
         product_infos = {key: product_infos_list[index]
                          for index, key in enumerate(constants.ALL_PRODUCTS_TABLE_COLUMNS)}

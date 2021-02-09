@@ -1,30 +1,30 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation graphique de la partie
-Retrouver mes aliments substitués
+"""Graphical implementation of the part
+Find my substitutes
 """
 
 # Third party import
 from PySide6 import QtWidgets
 
 class SavedSubstitutesView:
-    """Partie graphique du mode
-    Retrouver mes aliments substitués
+    """Graphic part of the mode
+    Find my substitutes
     """
     def __init__(self, window):
-        """Initialisation
-        L'attribut window correspond à
-        la fenètre de l'application
+        """Initialization
+        The window attribute corresponds to
+        the application window
 
         Args:
-            window (Window): Instance de la fenètre d'application
+            window (Window): Application window instance
         """
         self.window = window
 
     def setup_saved_substitutes(self):
-        """Disposition graphique du mode
-        Retrouver mes aliments substitués
+        """Graphic layout of the mode
+        Find my substitutes
         """
         self.cbb_products = QtWidgets.QComboBox()
         self.lw_substitutes = QtWidgets.QListWidget()

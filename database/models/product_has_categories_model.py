@@ -1,18 +1,17 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation de la relation entre produits et catégories
-Les informations de chaque instances de cette classe
-seront injectées dans la table "product_has_catégories"
+"""Implementation of the relationship between products and categories
+The information of each instance of this class
+will be injected into the "product_has_categories" table
 """
 
 class ProductHasCategoriesModel:
     def __init__(self, product, *categories_have_categories):
-        """Initialisation des instances avec leurs attributs
-
+        """Initializing instances with their attributes
         Args:
-            product (Product): Instance de Product auquel on associe les catégories
-            categories_have_categories (List): Instances de CategoryHasCategories associées
+            product (Product): Product instance to which the categories are associated
+            categories_have_categories (List): Associated CategoryHasCategories instances
         """
         self.product = product
         self.categories_have_categories = [category_has_categories

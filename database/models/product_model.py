@@ -1,9 +1,9 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du modèle d'un produit
-Les informations de chaque instances de cette classe
-seront injectées dans la table "products"
+"""Product model implementation
+The information of each instance of this class
+will be injected into the "products" table
 """
 
 # Local application imports
@@ -13,10 +13,10 @@ from database.models.product_has_stores_model import ProductHasStoresModel
 from database.models.category_model import CategoryModel
 
 class ProductModel:
-    """Modèle d'un produit
+    """Model of a product
     """
     def __init__(self, **product_infos):
-        """Initialisation de l'instance avec les informations du produit
+        """Initializing the instance with product information
         """
         self.product_id = product_infos.get("product_id")
         self.code = int(product_infos.get("code"))
@@ -38,21 +38,21 @@ class ProductModel:
             self.product_has_stores = None
 
     def get_product_has_categories(self, categories_names):
-        """Création de l'attribut product_has_categories
-        Cet attribut est une instance de ProductHasCategoriesModel
-        ProductHasCategoriesModel a deux attributs:
-        L'instance de ProductModel
-        Une liste d'instances de category_has_categories,
-        qui sont les catégories liées au produit
-        Category_has_categories a deux attributs:
-        L'instance de la catégorie
-        Des instances des catégories (childs) liées à la première catégorie
+        """Creating the product_has_categories attribute
+        This attribute is an instance of ProductHasCategoriesModel
+        ProductHasCategoriesModel has two attributes:
+        The ProductModel instance
+        A list of instances of category_has_categories,
+        which are the categories related to the product
+        Category_has_categories has two attributes:
+        Category instance
+        Instances of categories (childs) linked to the first category
 
         Args:
-            categories_names (Str): Nom des catégories
+            categories_names (Str): Categories names
 
         Returns:
-            ProductHasCategoriesModel: Lien entre un produit et des catégories
+            ProductHasCategoriesModel: Link between a product and categories
         """
         categories_have_categories = list()
         last_category = CategoryModel(categories_names[-1])
@@ -63,7 +63,7 @@ class ProductModel:
             for parent_category in range(len(categories_names) - 1):
                 category = CategoryModel(categories_names[parent_category])
 
-                # Catégories liées à la première
+                # Categories linked to the first one
                 child_categories = list()
                 for child_category in range(parent_category + 1, len(categories_names)):
                     child_category = CategoryModel(categories_names[child_category])

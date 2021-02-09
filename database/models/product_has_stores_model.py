@@ -1,22 +1,22 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation de la relation entre produits et magasins
-Les informations de chaque instances de cette classe
-seront injectées dans la table "product_has_stores"
+"""Implementation of the relationship between products and stores
+The information of each instance of this class
+will be injected into the "product_has_stores" table
 """
 
 # Local application imports
 from database.models.store_model import StoreModel
 
 class ProductHasStoresModel:
-    """Initialisation des instances
-    L'attribut product est une instance d'objet ProductModel
-    Nous créons des instances de StoreModel pour l'attribut stores
+    """Initializing instances
+    The product attribute is a ProductModel object instance
+    We create StoreModel instances for the stores attribute
 
     Args:
-        product (Product): Produit auquel on à trouvé des substituts
-        stores_names (Str): Nom des magasins associés
+        product (Product): Product for which we have stores associated
+        stores_names (Str): Name of associated stores
     """
     def __init__(self, product, *stores_names):
         self.product = product

@@ -1,22 +1,22 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation de la relation entre les catégories
-Les informations de chaque instances de cette classe
-seront injectées dans la table "category_has_categories"
+"""Implementation of the relationship between categories
+The information of each instance of this class
+will be injected into the "category_has_categories" table
 """
 
 class CategoryHasCategoriesModel:
     def __init__(self, category, *categories):
-        """Initialisation des instances avec leurs attributs
-        L'attribut category est la catégorie d'un produit
-        L'attribut childs est une liste contenant
-        les categories qui suivent la catégories mise en premier attribut
-        dans la liste des catégories du produit lié à celle ci
+        """Initializing instances with their attributes
+        The category attribute is the category of a product
+        The childs attribute is a list containing
+        the categories following the categories put in first attribute
+        in the list of product categories linked to this one
 
         Args:
-            category (Category): Instance de Category
-            categories (List): Instances de Category
+            category (Category): CategoryModel instance
+            categories (List): CategoryModel instances
         """
         self.category = category
         self.childs = [category for category in categories]

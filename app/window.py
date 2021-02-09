@@ -1,8 +1,8 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation de la fenètre graphique de l'application
-Utilisation de QtWidgets de PySide6
+"""Implementation of the graphical window of the application
+Using PySide6's QtWidgets
 """
 
 # Third party import
@@ -12,30 +12,29 @@ from PySide6 import QtWidgets
 from app import constants
 
 class Window(QtWidgets.QWidget):
-    """Interface graphique utilisant QtWidgets
+    """GUI using QtWidgets
 
     Args:
-        QtWidgets ([type]): [description]
+        QtWidget (Widget): PySide6's Widget
     """
     def __init__(self):
-        """Initialisation des attributs et méthodes QtWidget
-        Paramètrages de la fenètres
+        """Initialization of QtWidget attributes and methods
         """
         super().__init__()
         self.window_parameters()
 
     def window_parameters(self):
-        """Paramètres de la fenètre
+        """Window settings
         """
         self.setWindowTitle(constants.APP_NAME)
         self.layout = QtWidgets.QVBoxLayout(self)
         self.resize(constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH)
 
     def delete_widget(self, widget):
-        """Suppression complète d'un widget du layout
+        """Complete removal of a widget from the layout
 
         Args:
-            widget (QtWidget): Instance de QtWidget
+            widget (QtWidget): QtWidget instance
         """
         self.layout.removeWidget(widget)
         widget.deleteLater()

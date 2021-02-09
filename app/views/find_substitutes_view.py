@@ -1,30 +1,30 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation graphique de la partie
-Quel aliment souhaitez-vous remplacer ?
+"""Graphical implementation of the game
+Which product do you want to replace?
 """
 
 # Third party import
 from PySide6 import QtWidgets
 
 class FindSubstitutesView:
-    """Partie graphique du mode
-    Quel aliment souhaitez-vous remplacer ?
+    """Graphic part of the mode
+    Which product do you want to replace?
     """
     def __init__(self, window):
-        """Initialisation
-        L'attribut window correspond à
-        la fenètre de l'application
+        """Initialization
+        The window attribute corresponds to
+        the application window
 
         Args:
-            window (Window): Instance de la fenètre d'application
+            window (Window): Application window instance
         """
         self.window = window
 
     def setup_find_substitutes(self):
-        """Disposition graphique du mode
-        Quel aliment souhaitez-vous remplacer ?
+        """Graphic mode layout
+        Which product do you want to replace?
         """
         self.cbb_starters_categories = QtWidgets.QComboBox()
         self.cbb_categories = QtWidgets.QComboBox()

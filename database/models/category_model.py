@@ -1,18 +1,18 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du modèle d'une catégorie
-Les informations de chaque instances de cette classe
-seront injectées dans la table "categories"
+"""Category model implementation
+The information of each instance of this class
+will be injected into the "categories" table
 """
 
 class CategoryModel:
     def __init__(self, category_name, category_id=None):
-        """Initialisation des instances avec leurs attributs
+        """Initializing instances with their attributes
 
         Args:
-            category_name (Str): Nom de la catégorie
-            category_id (Int, optional): ID dans la database. Defaults to None.
+            category_name (Str): Category name
+            category_id (Int, optional): ID in the database. Defaults to None.
         """
         if category_id:
             self.category_id = category_id

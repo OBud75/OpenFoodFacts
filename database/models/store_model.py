@@ -1,22 +1,22 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du modèle d'un magasin
-Les informations de chaque instances de cette classe
-seront injectées dans la table "stores"
+"""Store model implementation
+The information of each instance of this class
+will be injected into the "stores" table
 """
 
 class StoreModel:
-    """Modèle d'un magasin
+    """Model of a store
     """
     def __init__(self, store_name, store_id=None):
-        """Les informations relatives à un magasin sont
-        Le nom du magasin
-        L'ID du magasin dans la base de données
+        """The information relating to a store is
+        The name of the store
+        The store ID in the database
 
         Args:
-            store_name (Str): Nom du magasin
-            store_id (Int, optional): ID du magasin dans la database. None par défault.
+            store_name (Str): Name of the shop
+            store_id (Int, optional): Store ID in the database. None by default.
         """
         if store_id:
             self.store_id = store_id

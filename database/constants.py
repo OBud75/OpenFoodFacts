@@ -1,7 +1,7 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Constantes relatives à la création et à la connection à la base de données SQL
+"""Constants relating to the creation and connection to the SQL database
 """
 
 # Standard library import
@@ -24,7 +24,7 @@ API_MANDATORY_INFORMATIONS = [
     "categories_hierarchy"
     ]
 
-# Configuration de MySQL
+# MySQL configuration
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
 
 MYSQL_CONFIG = {
@@ -36,7 +36,7 @@ MYSQL_CONFIG = {
 
 DATABASE_NAME = "openfoodfacts"
 
-# Tables de données SQL
+# MySQL Tables
 ALL_PRODUCTS_TABLE_COLUMNS = [
     "product_id",
     "code",

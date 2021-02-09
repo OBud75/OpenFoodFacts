@@ -1,37 +1,39 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du gestionnaire de la table "category_has_categories"
+"""Implementation of the manager of the "category_has_categories" table
 """
 
 # Local application imports
+from mysql.connector.cursor import CursorBase
 from database.models.category_has_categories_model import CategoryHasCategoriesModel
 
 class CategoryHasCategoriesManager():
-    """Gestionnaire de la table "category_has_categories"
-    Cette table contient les informations des relations entre les catégories
+    """Manager of the "category_has_categories" table
+    This table contains information on the relationships between categories
     """
     def __init__(self, database_manager):
-        """Initialisation de l'instance du gestionnaire de la table "category_has_categories"
+        """Initialization of the manager instance
+        of the "category_has_categories" table
 
         Args:
-            database_manager (DatabaseManager): Instance du gestionnaire de la database
+            database_manager (DatabaseManager): Instance of the database manager
         """
         self.database_manager = database_manager
 
     def manage(self, *categories_have_categories):
-        """Méthode appelée depuis le gestionnaire de la database
-        Vérifications de la table "category_has_categories" pour injections
+        """Method called from the database manager
+        Checks of the "category_has_categories" table for injections
 
         Args:
-            categories_have_categories (List): Instances de CategoryHasCategoriesModel
+            categories_have_categories (List): CategoryHasCategoriesModel instance
         """
-        # Catégorie liée au produit
+        # Category related to product
         for category_has_categories in categories_have_categories:
             category = category_has_categories.category
             category.category_id = self.database_manager.categories_manager.get_id(category)
 
-            # Catégories liées à la catégorie du produit
+            # Categories related to product category
             for child in category_has_categories.childs:
                 if child:
                     child.category_id = self.database_manager.categories_manager.get_id(child)
@@ -39,31 +41,34 @@ class CategoryHasCategoriesManager():
                         self.add_to_table(category, child)
 
     def add_to_table(self, category, child):
-        """Injection d'informations dans la table "category_has_categories"
+        """Injection of information into the "category_has_categories" table
 
         Args:
-            category (CategoryModel): Instance de CategoryModel liée au produit
-            child (CategoryModel): Instance de catégorie liée à la catégorie
+            category (CategoryModel): CategoryModel instance linked to the product
+            child (CategoryModel): Category instance linked to the category
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         statement = (
             "INSERT INTO category_has_categories"
             "(category_id, child_id)"
             "VALUES (%s, %s)"
         )
         data = (category.category_id, child.category_id)
-        self.database_manager.cursor.execute(statement, data)
+        cursor.execute(statement, data)
+        cursor.close()
 
     def is_in_table(self, category, child):
-        """Recherche dans la table "category_has_categories" pour savoir
-        si la relation entre les catégories est déjà enregistrée
+        """Search in the "category_has_categories" table to find out
+        if the relationship between categories is already saved
 
         Args:
-            category (CategoryModel): Instance de la catégorie liée au produit
-            child (CategoryModel): Instance de la catégorie liée à la catégorie
+            category (CategoryModel): CategoryModel instance linked to the product
+            child (CategoryModel): Category instance linked to the category
 
         Returns:
-            Bool: La relation est elle déjà enregistrée?
+            Bool: Is the relationship already registered?
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT *
             FROM category_has_categories
@@ -71,21 +76,24 @@ class CategoryHasCategoriesManager():
             AND child_id = %s
         """)
         data = (category.category_id, child.category_id)
-        self.database_manager.cursor.execute(query, data)
-        if self.database_manager.cursor.fetchall():
+        cursor.execute(query, data)
+        is_saved = cursor.fetchall()
+        cursor.close()
+        if is_saved:
             return True
         return False
 
     def create(self, category):
-        """Création d'instance de CategoryHasCategories
-        Représentant les catégories liées à une catégorie donnée
+        """Creating a CategoryHasCategories instance
+        Representing categories linked to a given category
 
         Args:
-            category (CategoryModel): Catégorie dont on veut les catégories liées
+            category (CategoryModel): Category of which we want linked categories
 
         Returns:
-            CategoryHasCategoryModel: Lien entre une catégorie et celles liées à elle
+            CategoryHasCategoryModel: Link between a category and those linked to it
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT chc.child_id, category_name
             FROM categories AS c
@@ -94,9 +102,10 @@ class CategoryHasCategoriesManager():
             WHERE chc.category_id = %s;
         """)
         data = (category.category_id,)
-        self.database_manager.cursor.execute(query, data)
-        categories_infos = self.database_manager.cursor.fetchall()
+        cursor.execute(query, data)
+        categories_infos = cursor.fetchall()
+        cursor.close()
 
-        # Création des instances de CategoryModel
+        # Creation of CategoryModel instances
         categories = self.database_manager.categories_manager.create_categories(*categories_infos)
         return CategoryHasCategoriesModel(category, *categories)

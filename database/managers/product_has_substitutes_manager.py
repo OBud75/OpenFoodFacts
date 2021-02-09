@@ -1,31 +1,34 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Implémentation du gestionnaire de la table "product_has_substitutes"
+"""Implementation of the manager of the "product_has_substitutes" table
 """
 
 from database.models.product_has_substitutes_model import ProductHasSubstitutesModel
 
 class ProductHasSubstitutesManager:
-    """Gestionnaire de la table "product_has_substitutes"
-    Cette table contient les informations des produits dont un substitut a été enregistré
+    """Manager of the "product_has_substitutes" table
+    This table contains the information of the products
+    for which a substitute has been registered
     """
     def __init__(self, database_manager):
-        """Initialisation de l'instance du gestionnaire de la table "product_has_substitutes"
+        """Initialization of the manager instance
+        of the "product_has_substitutes" table
 
         Args:
-            database_manager (DatabaseManager): Instance du gestionnaire de la database
+            database_manager (DatabaseManager): Instance of the database manager
         """
         self.database_manager = database_manager
 
     def save_substitute(self, product, substitute):
-        """Injection dans la table product_has_substitute
-        d'un produit et du substitut séléctionné par l'utilisateur
+        """Injection into the product_has_substitute table
+        of a product and substitute selected by the user
 
         Args:
-            product (Product): Instance de ProductModel du produit
-            substitute (Product): Instance de ProductModel du substitut
+            product (Product): ProductModel instance of the product
+            substitute (Product): Substitute's ProductModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         product.product_id = self.database_manager.products_manager.get_product_id(product)
         substitute.product_id = self.database_manager.products_manager.get_product_id(substitute)
         statement = (
@@ -34,20 +37,22 @@ class ProductHasSubstitutesManager:
             "VALUES (%s, %s)"
         )
         data = (product.product_id, substitute.product_id)
-        self.database_manager.cursor.execute(statement, data)
+        cursor.execute(statement, data)
         self.database_manager.mydb.commit()
+        cursor.close()
 
     def is_already_saved(self, product, substitute):
-        """Recherche dans la table "product_has_substitutes"
-        pour savoir si la substitution est déjà enregistrée
+        """Search in the "product_has_substitutes" table
+        to know if the substitution is already registered
 
         Args:
-            product (ProductModel): Instance de ProductModel du produit
-            substitute (ProductModel): Instance de ProductModel du substitut
+            product (ProductModel): ProductModel instance of the product
+            substitute (ProductModel): Substitute's ProductModel instance
 
         Returns:
-            Bool: La substitution est elle déjà enregistrée?
+            Bool: Is the substitution already registered?
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT *
             FROM product_has_substitutes
@@ -55,40 +60,45 @@ class ProductHasSubstitutesManager:
             AND substitute_id = %s
         """)
         data = (product.product_id, substitute.product_id)
-        self.database_manager.cursor.execute(query, data)
-        if self.database_manager.cursor.fetchall():
+        cursor.execute(query, data)
+        is_saved = cursor.fetchall()
+        cursor.close()
+        if is_saved:
             return True
         return False
 
     def delete_substitute(self, product, substitute):
-        """Suppression d'une substitution enregistrée
+        """Delete a saved substitution
 
         Args:
-            product (Product): Instance de ProductModel du produit
-            substitute (Product): Instance de ProductModel du substitut
+            product (Product): ProductModel instance of the product
+            substitute (Product): Substitute's ProductModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         statement = ("""
             DELETE FROM product_has_substitutes
             WHERE product_id = %s
             AND substitute_id = %s
         """)
         data = (product.product_id, substitute.product_id)
-        self.database_manager.cursor.execute(statement, data)
+        cursor.execute(statement, data)
         self.database_manager.mydb.commit()
+        cursor.close()
 
     def get_substitutes_of_product(self, product):
-        """Récupère les substituts possibles d'un produits
-        Crée une instance de ProductHasSubstitutesModel
-        Les arguments sont:
-        L'instance de ProductModel dont nous voulons les substituts
-        Une liste d'instancecs de ProductModel des substitus possibles
+        """Retrieves possible substitutes for a product
+        Creates an instance of ProductHasSubstitutesModel
+        The arguments are:
+        The instance of ProductModel for which we want the substitutes
+        A list of ProductModel instancecs of possible substitutes
 
         Args:
-            product (ProductModel): Produit dont nous voulons les substitus possibles
+            product (ProductModel): Product for which we want possible substitutes
 
         Returns:
-            ProductHasSubstitutes: Instance de ProductHasSubstitutesModel
+            ProductHasSubstitutes: ProductHasSubstitutesModel instance
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         query = ("""
             SELECT *
             FROM products as p
@@ -102,21 +112,26 @@ class ProductHasSubstitutesManager:
                                     WHERE product_id = %s)
         """)
         data = (product.nutrition_grades, product.product_id)
-        self.database_manager.cursor.execute(query, data)
-        substitutes_infos = self.database_manager.cursor.fetchall()
+        cursor.execute(query, data)
+        substitutes_infos = cursor.fetchall()
+        cursor.close()
         substitutes = self.database_manager.products_manager.create_products(*substitutes_infos)
         return ProductHasSubstitutesModel(product, *substitutes)
 
     def get_saved_substitutes_of_product(self, product):
-        """Récupère les substituts déjà enregistrés d'un produits
-        Crée une instance de ProductHasSubstitutesModel
-        Les arguments sont:
-        L'instance de ProductModel dont nous voulons les substituts enregistrés
-        Une liste d'instancecs de ProductModel des substitus déjà enregistrés
+        """Retrieves already registered substitutes for a product
+        Creates an instance of ProductHasSubstitutesModel
+        The arguments are:
+        The ProductModel instance for which we want registered substitutes
+        A list of ProductModel instancecs of already registered surrogates
 
         Args:
-            product (ProductModel): Produit dont nous voulons les substitus déjà enregistrés
+            product (ProductModel): Product for which we want substitutes already registered
+
+        Returns:
+            ProductHasSubstitutesModel: Representation of a product with its substitutes
         """
+        cursor = self.database_manager.mydb.cursor(buffered=True)
         product.product_id = self.database_manager.products_manager.get_product_id(product)
         query = ("""
             SELECT p.product_id, code, product_name, ingredients_text, nutrition_grades, link
@@ -126,10 +141,11 @@ class ProductHasSubstitutesManager:
             WHERE phs.product_id = %s
         """)
         data = (product.product_id,)
-        self.database_manager.cursor.execute(query, data)
-        substitutes_infos = self.database_manager.cursor.fetchall()
+        cursor.execute(query, data)
+        substitutes_infos = cursor.fetchall()
+        cursor.close()
 
-        # Création des instances de ProductModel des substituts
+        # Creation of ProductModel instances of substitutes
         substitutes = list()
         for substitute_infos in substitutes_infos:
             substitute = self.database_manager.products_manager.create_product(substitute_infos)
@@ -137,16 +153,18 @@ class ProductHasSubstitutesManager:
         return ProductHasSubstitutesModel(product, *substitutes)
 
     def get_saved_products(self):
-        """Récupère les produits qui ont un substitut d'enregistré
+        """Retrieves products that have a registered substitute
 
         Returns:
-            List: Instances de ProductModel des produits qui ont un substitut d'enregistré
+            List: ProductModel instances of products that have a registered surrogate
         """
-        self.database_manager.cursor.execute("""
+        cursor = self.database_manager.mydb.cursor(buffered=True)
+        cursor.execute("""
             SELECT phs.product_id, code, product_name, ingredients_text, nutrition_grades, link
             FROM products AS p
             JOIN product_has_substitutes AS phs
             ON phs.product_id = p.product_id
         """)
-        products_infos = self.database_manager.cursor.fetchall()
+        products_infos = cursor.fetchall()
+        cursor.close()
         return self.database_manager.products_manager.create_products(*products_infos)

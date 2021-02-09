@@ -1,12 +1,12 @@
 # coding: utf-8
 #! /usr/bin/env python3
 
-"""Fichier utilisé pour lancer l'application
-On gère l'argument avec l'import argv
-Cet argument correspond au mode du database_manager
-Mode create pour le premier lancement et normal pour les suivants
-python launcher.py database pour la création (premier lancement)
-python launcher.py pour les suivants
+"""File used to launch the application
+We manage the argument with the argv import
+This argument corresponds to the mode of the database_manager
+Create mode for the first launch and normal for the following ones
+python launcher.py database for creation (first launch)
+python launcher.py for the following
 """
 
 # Standard library import
@@ -18,10 +18,10 @@ from database.database_manager import DataBaseManager
 from app.application_manager import ApplicationManager
 
 def check_argv():
-    """Nous récupérons un argument supplémentaire grâce au module argv
+    """We get an additional argument thanks to the argv module
 
     Returns:
-        Str: Mode normal ou create pour la création de la base de données
+        Str: Normal or create mode for the creation of the database
     """
     if len(argv) == 2 and argv[1] == "database":
         return "create"
@@ -30,10 +30,10 @@ def check_argv():
     exit("Create database: python launcher.py database\nUsage: python launcher.py")
 
 def main():
-    """Fonction pour lancer l'application
-    Nous utilisons l'agrégation et créeons 2 instances principales
-    Une pour gérer la base de données
-    La seconde pour gérer l'application
+    """Function to launch the application
+    We use aggregation and create 2 main instances
+    One to manage the database
+    The second to manage the application
     """
     mode = check_argv()
     database_manager = DataBaseManager(mode)
