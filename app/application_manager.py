@@ -51,18 +51,15 @@ class ApplicationManager:
 
         # Select mode
         self.select_mode_view = SelectModeView(self.window)
-        self.select_mode_manager = SelectModeManager(self.database_manager,
-                                                     self.select_mode_view)
+        self.select_mode_manager = SelectModeManager(self, self.select_mode_view)
 
         # Find substitutes
         self.find_substitutes_view = FindSubstitutesView(self.window)
-        self.find_substitutes_manager = FindSubstitutesManager(self.database_manager,
-                                                               self.find_substitutes_view)
+        self.find_substitutes_manager = FindSubstitutesManager(self, self.find_substitutes_view)
 
         # Saved substitutes
         self.saved_substitutes_view = SavedSubstitutesView(self.window)
-        self.saved_substitutes_manager = SavedSubstitutesManager(self.database_manager,
-                                                                 self.saved_substitutes_view)
+        self.saved_substitutes_manager = SavedSubstitutesManager(self, self.saved_substitutes_view)
 
         self.window.show()
 
