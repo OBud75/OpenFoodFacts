@@ -7,8 +7,8 @@
 # Graphic window
 APP_NAME = "OpenFoodFacts"
 
-WINDOW_HEIGHT = 800
-WINDOW_WIDTH = 600
+WINDOW_HEIGHT = 460
+WINDOW_WIDTH = 400
 
 # Select mode
 SELECT_MODE_LIST = [

@@ -28,7 +28,7 @@ class Window(QtWidgets.QWidget):
         """
         self.setWindowTitle(constants.APP_NAME)
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.resize(constants.WINDOW_HEIGHT, constants.WINDOW_WIDTH)
+        self.resize(constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT)
 
     def delete_widget(self, widget):
         """Complete removal of a widget from the layout
